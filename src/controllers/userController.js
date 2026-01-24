@@ -1,5 +1,6 @@
 const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
+const { EncodeToken } = require("../utility/tokenhelper");
 
 //! create user
 exports.register = async (req, res) => {
@@ -39,17 +40,6 @@ exports.login = async (req, res) => {
 
     // PASSWORD MATCH
     let isMatch = await bcrypt.compare(password, user.password);
-    if (isMatch) {
-      let token = "EncodeToken(user.email, user._id).toString()";
-
-      res.status(200).json({
-        success: true,
-        message: "Login successful",
-        user: user,
-        token: token,
-      });
-    }
-
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -57,10 +47,13 @@ exports.login = async (req, res) => {
       });
     }
 
+    const token = EncodeToken(user.email, user._id.toString());
+
     return res.status(200).json({
       success: true,
       message: "Login successful",
       user: user,
+      token: token,
     });
   } catch (error) {
     return res.status(500).json({
