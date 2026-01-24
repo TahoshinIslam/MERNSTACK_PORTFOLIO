@@ -1,9 +1,8 @@
 const express = require("express");
+const userController = require("../controllers/userController");
 let router = express.Router();
 
-router.get("/data", (req, res) => {
-  res.status(200).json({
-    data: "Hello",
-  });
-});
+//! Register anew user
+router.post("/register", userController.register);
+router.post("/login", userController.login);
 module.exports = router;
