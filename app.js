@@ -23,10 +23,9 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb" }));
 
 let url =
-  "mongodb+srv://tahoshin:H6ADalicCAwDm0TL@tahomernstack-cluster-2.vrdaw99.mongodb.net/";
+  "mongodb+srv://tahoshin:H6ADalicCAwDm0TL@tahoshin.egbuygm.mongodb.net/tahoshin?appName=Tahoshin";
+
 let option = {
-  user: process.env.DB_USER,
-  pass: process.env.DB_PASSWORD,
   autoIndex: true,
   serverSelectionTimeoutMS: 50000,
 };
@@ -40,11 +39,12 @@ mongoose
     console.log("Database connection failed", err);
   });
 
-let limiter = rateLimit({ windowsMs: 15 * 60 * 1000, limit: 100 });
+let limiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 100 });
 app.use(limiter);
 
 //api end point tag
 
 app.use("/api/v1", router);
-
+app.use(express.static("client"));
+app.use("/api/v1/get-file", express.static("uploads"));
 module.exports = app;
