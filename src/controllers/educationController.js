@@ -1,19 +1,19 @@
-const experienceModel = require("../models/experienceModel");
-//! EXPERIENCE CREATE
+const educationModel = require("../models/educationModel");
+//! EDUCATION CREATE
 
-exports.createExperience = async (req, res) => {
+exports.createEducation = async (req, res) => {
   try {
-    let { title, company, description, time } = req.body;
+    let { title, institute, description, time } = req.body;
 
-    let data = await experienceModel.create({
+    let data = await educationModel.create({
       title,
-      company,
+      institute,
       description,
       time,
     });
     res.status(201).json({
       success: true,
-      message: "Experience Created Successfully",
+      message: "Education Created Successfully",
       data,
     });
     console.log(title, description, time);
@@ -25,13 +25,13 @@ exports.createExperience = async (req, res) => {
     });
   }
 };
-//! EXPERIENCE GET ALL
-exports.allExperience = async (req, res) => {
+//! EDUCATION GET ALL
+exports.allEducation = async (req, res) => {
   try {
-    let data = await experienceModel.find();
+    let data = await educationModel.find();
     res.status(201).json({
       success: true,
-      message: " ALL Experience Data Get Successfully",
+      message: " ALL Education Data Get Successfully",
       data,
     });
   } catch (error) {
@@ -42,14 +42,14 @@ exports.allExperience = async (req, res) => {
     });
   }
 };
-//! EXPERIENCE SINGLE DATA GET
-exports.singleExperience = async (req, res) => {
+//! EDUCATION SINGLE DATA GET
+exports.singleEducation = async (req, res) => {
   try {
     let { id } = req.params;
-    let data = await experienceModel.findById(id);
+    let data = await educationModel.findById(id);
     res.status(201).json({
       success: true,
-      message: " ALL Experience Data Get Successfully",
+      message: " Education Data Get Successfully",
       data,
     });
   } catch (error) {
@@ -61,19 +61,19 @@ exports.singleExperience = async (req, res) => {
   }
 };
 
-//! EXPERIENCE SINGLE DATA UPDATE
-exports.updateExperience = async (req, res) => {
+//! EDUCATION SINGLE DATA UPDATE
+exports.updateEducation = async (req, res) => {
   try {
     let { id } = req.params;
     let { title, company, description, time } = req.body;
-    let data = await experienceModel.findByIdAndUpdate(
+    let data = await educationModel.findByIdAndUpdate(
       id,
       { title, company, description, time },
       { new: true },
     );
     res.status(201).json({
       success: true,
-      message: " Experience Data UPDATE Successfully",
+      message: " Education Data UPDATED Successfully",
       data,
     });
   } catch (error) {
@@ -84,19 +84,14 @@ exports.updateExperience = async (req, res) => {
     });
   }
 };
-//! EXPERIENCE SINGLE DATA UPDATE
-exports.updateExperience = async (req, res) => {
+//! EDUCATION SINGLE DATA DELETE
+exports.deleteEducation = async (req, res) => {
   try {
     let { id } = req.params;
-    let { title, company, description, time } = req.body;
-    let data = await experienceModel.findByIdAndUpdate(
-      id,
-      { title, company, description, time },
-      { new: true },
-    );
+    let data = await educationModel.findByIdAndDelete(id);
     res.status(201).json({
       success: true,
-      message: " Experience Data UPDATE Successfully",
+      message: " Education Data DELETED Successfully",
       data,
     });
   } catch (error) {

@@ -7,12 +7,11 @@ exports.register = async (req, res) => {
   try {
     let { email, password } = req.body;
 
-    // hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    // Password will be automatically hashed by the model's pre-save hook
+    // Do NOT hash manually here to avoid double hashing
     let result = await userModel.create({
       email,
-      password: hashedPassword,
+      password, // Pass plain password - model will hash it automatically
     });
 
     return res.status(201).json({
@@ -51,6 +50,7 @@ exports.login = async (req, res) => {
         maxAge: process.env.Cookie_Expire_Time || 86400000,
         httpOnly: true,
         sameSite: "lax",
+        path: "/",
       };
 
       //! set cookie
