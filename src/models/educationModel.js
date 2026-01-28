@@ -5,7 +5,7 @@ const DataSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    company: {
+    institute: {
       type: String,
       required: true,
     },
@@ -24,5 +24,5 @@ const DataSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
-const experienceModel = mongoose.model("experiences", DataSchema);
-module.exports = experienceModel;
+const educationModel = mongoose.model("educations", DataSchema);
+module.exports = educationModel;
