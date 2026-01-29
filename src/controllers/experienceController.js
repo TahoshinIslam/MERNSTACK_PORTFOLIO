@@ -107,3 +107,23 @@ exports.updateExperience = async (req, res) => {
     });
   }
 };
+//! EXPERIENCE SINGLE DATA DELETE
+exports.deleteExperience = async (req, res) => {
+  try {
+    let { id } = req.params;
+    let data = await experienceModel.findByIdAndDelete(id);
+    res.status(201).json({
+      success: true,
+      message: " Experience Data DELETED Successfully",
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.toString(),
+      message: "Something Went Wrong",
+    });
+  }
+};
+
+const educationModel = require("../models/educationModel");
