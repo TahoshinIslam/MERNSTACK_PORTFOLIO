@@ -1,7 +1,17 @@
 const { decodeToken } = require("../utility/tokenhelper");
 
 module.exports = (req, res, next) => {
-  let token = req.cookies["token"];
+  let token;
+
+  // Best practice: Support both Authorization header and cookies
+  // Check Authorization header first (for Postman/API clients)
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.substring(7);
+  } else {
+    // Fall back to cookie (for browser clients)
+    token = req.cookies["token"];
+  }
 
   let decoded = decodeToken(token);
 
