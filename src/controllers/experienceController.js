@@ -4,8 +4,10 @@ const experienceModel = require("../models/experienceModel");
 exports.createExperience = async (req, res) => {
   try {
     let { title, company, description, time } = req.body;
+    let userId = req.headers._id;
 
     let data = await experienceModel.create({
+      userId,
       title,
       company,
       description,
@@ -61,29 +63,6 @@ exports.singleExperience = async (req, res) => {
   }
 };
 
-//! EXPERIENCE SINGLE DATA UPDATE
-exports.updateExperience = async (req, res) => {
-  try {
-    let { id } = req.params;
-    let { title, company, description, time } = req.body;
-    let data = await experienceModel.findByIdAndUpdate(
-      id,
-      { title, company, description, time },
-      { new: true },
-    );
-    res.status(201).json({
-      success: true,
-      message: " Experience Data UPDATE Successfully",
-      data,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.toString(),
-      message: "Something Went Wrong",
-    });
-  }
-};
 //! EXPERIENCE SINGLE DATA UPDATE
 exports.updateExperience = async (req, res) => {
   try {

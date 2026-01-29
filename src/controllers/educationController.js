@@ -4,8 +4,10 @@ const educationModel = require("../models/educationModel");
 exports.createEducation = async (req, res) => {
   try {
     let { title, institute, description, time } = req.body;
+    let userId = req.headers._id;
 
     let data = await educationModel.create({
+      userId,
       title,
       institute,
       description,
@@ -65,10 +67,10 @@ exports.singleEducation = async (req, res) => {
 exports.updateEducation = async (req, res) => {
   try {
     let { id } = req.params;
-    let { title, company, description, time } = req.body;
+    let { title, institute, description, time } = req.body;
     let data = await educationModel.findByIdAndUpdate(
       id,
-      { title, company, description, time },
+      { title, institute, description, time },
       { new: true },
     );
     res.status(201).json({
@@ -102,3 +104,5 @@ exports.deleteEducation = async (req, res) => {
     });
   }
 };
+
+const advantageModel = require("../models/advantageModel");
