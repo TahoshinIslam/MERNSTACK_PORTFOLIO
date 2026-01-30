@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
 const DataSchema = new mongoose.Schema(
   {
-    title: {
+    clientName: {
       type: String,
       required: true,
     },
-    img: {
+    address: {
       type: String,
       required: true,
     },
 
-    link: {
+    img: {
       type: String,
     },
-    category: {
+    feedback: {
       type: String,
       required: true,
     },
@@ -23,5 +23,5 @@ const DataSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
-const portfolioModel = mongoose.model("portfolios", DataSchema);
-module.exports = portfolioModel;
+const testimonialModel = mongoose.model("testimonials", DataSchema);
+module.exports = testimonialModel;
