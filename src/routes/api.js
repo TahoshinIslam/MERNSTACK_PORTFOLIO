@@ -6,6 +6,9 @@ const advantageController = require("../controllers/advantageController");
 const portfolioController = require("../controllers/portfolioController");
 const serviceController = require("../controllers/serviceController");
 const testimonialController = require("../controllers/testimonialController");
+const contactController = require("../controllers/contactController");
+const blogController = require("../controllers/blogController");
+const commentController = require("../controllers/commentController");
 const middlewares = require("../middlewares/authVerification");
 let router = express.Router();
 
@@ -119,5 +122,32 @@ router.delete(
   "/delete-testimonial/:id",
   middlewares,
   testimonialController.deleteTestimonial,
+);
+
+//! API FOR CONTACT
+router.post("/create-contact", contactController.createContact);
+router.get("/all-contact", contactController.allContact);
+router.get("/single-contact/:id", contactController.singleContact);
+router.delete(
+  "/delete-contact/:id",
+  middlewares,
+  contactController.deleteContact,
+);
+
+//! API FOR BLOG
+router.post("/create-blog", middlewares, blogController.createBlog);
+router.get("/all-blog", blogController.allBlog);
+router.get("/single-blog/:id", blogController.singleBlog);
+router.put("/update-blog/:id", middlewares, blogController.updateBlog);
+router.delete("/delete-blog/:id", middlewares, blogController.deleteBlog);
+
+//! API FOR COMMENT
+router.post("/create-comment", commentController.createComment);
+router.get("/all-comment", commentController.allComment);
+router.get("/single-comment/:id", commentController.singleComment);
+router.delete(
+  "/delete-comment/:id",
+  middlewares,
+  commentController.deleteComment,
 );
 module.exports = router;
