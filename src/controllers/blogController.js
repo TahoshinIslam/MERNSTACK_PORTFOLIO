@@ -1,22 +1,22 @@
-const testimonialModel = require("../models/testimonialModel");
-//! TESTIMONIAL CREATE
+const blogModel = require("../models/blogModel");
+//! BLOG CREATE
 
-exports.createTestimonial = async (req, res) => {
+exports.createBlog = async (req, res) => {
   try {
-    let { clientName, address, img, feedback } = req.body;
+    let { title, category, img, shortDescription, description } = req.body;
 
-    let data = await testimonialModel.create({
-      clientName,
-      address,
+    let data = await blogModel.create({
+      title,
+      category,
       img,
-      feedback,
+      description,
     });
     res.status(201).json({
       success: true,
-      message: "TESTIMONIAL Created Successfully",
+      message: "BLOG Created Successfully",
       data,
     });
-    console.log(clientName, address, img, feedback);
+    console.log(title, category, img, shortDescription, description);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -25,13 +25,17 @@ exports.createTestimonial = async (req, res) => {
     });
   }
 };
-//! TESTIMONIAL GET ALL
-exports.allTestimonial = async (req, res) => {
+//! BLOG GET ALL
+exports.allBlog = async (req, res) => {
   try {
-    let data = await testimonialModel.find();
+    let pageNo = Number(req.params.pageNo);
+    let perPage = Number(req.params.perPage);
+    s;
+    s;
+    sss;
     res.status(201).json({
       success: true,
-      message: " ALL TESTIMONIALData Get Successfully",
+      message: " ALL Blog Data Get Successfully",
       data,
     });
   } catch (error) {
@@ -42,14 +46,14 @@ exports.allTestimonial = async (req, res) => {
     });
   }
 };
-//! TESTIMONIAL SINGLE DATA GET
-exports.singleTestimonial = async (req, res) => {
+//! BLOG SINGLE DATA GET
+exports.singleBlog = async (req, res) => {
   try {
     let { id } = req.params;
-    let data = await testimonialModel.findById(id);
+    let data = await blogModel.findById(id);
     res.status(201).json({
       success: true,
-      message: " ALL TESTIMONIAL Data Get Successfully",
+      message: " Blog Data Get Successfully",
       data,
     });
   } catch (error) {
@@ -60,19 +64,19 @@ exports.singleTestimonial = async (req, res) => {
     });
   }
 };
-//! TESTIMONIAL SINGLE DATA UPDATE
-exports.updateTestimonial = async (req, res) => {
+//! BLOG SINGLE DATA UPDATE
+exports.updateBlog = async (req, res) => {
   try {
     let { id } = req.params;
-    let { clientName, address, img, feedback } = req.body;
-    let data = await testimonialModel.findByIdAndUpdate(
+    let { title, category, img, description } = req.body;
+    let data = await blogModel.findByIdAndUpdate(
       id,
-      { clientName, address, img, feedback },
+      { title, category, img, description },
       { new: true },
     );
     res.status(201).json({
       success: true,
-      message: " TESTIMONIAL Data UPDATED Successfully",
+      message: " Blog Data UPDATED Successfully",
       data,
     });
   } catch (error) {
@@ -83,14 +87,14 @@ exports.updateTestimonial = async (req, res) => {
     });
   }
 };
-//! TESTIMONIAL SINGLE DATA DELETE
-exports.deleteTestimonial = async (req, res) => {
+//! BLOG SINGLE DATA DELETE
+exports.deleteBlog = async (req, res) => {
   try {
     let { id } = req.params;
-    let data = await testimonialModel.findByIdAndDelete(id);
+    let data = await blogModel.findByIdAndDelete(id);
     res.status(201).json({
       success: true,
-      message: " TESTIMONIAL Data DELETED Successfully",
+      message: " Blog Data DELETED Successfully",
       data,
     });
   } catch (error) {
