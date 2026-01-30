@@ -25,16 +25,13 @@ app.use(hpp());
 app.use(express.json({ limit: "10mb", extended: true }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
-let url =
-  "mongodb+srv://tahoshin:H6ADalicCAwDm0TL@tahoshin.egbuygm.mongodb.net/tahoshin?appName=Tahoshin";
-
 let option = {
   autoIndex: true,
   serverSelectionTimeoutMS: 50000,
 };
 
 mongoose
-  .connect(url, option)
+  .connect(process.env.MONGODB_URI, option)
   .then(() => {
     console.log("Database connected successfully");
   })
