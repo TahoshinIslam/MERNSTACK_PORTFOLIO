@@ -1,22 +1,21 @@
-const portfolioModel = require("../models/portfolioModel");
-//! Portfolio CREATE
+const serviceModel = require("../models/serviceModel");
+//! SERVICE CREATE
 
-exports.createPortfolio = async (req, res) => {
+exports.createService = async (req, res) => {
   try {
-    let { title, img, link, category } = req.body;
+    let { title, img, description } = req.body;
 
-    let data = await portfolioModel.create({
+    let data = await serviceModel.create({
       title,
       img,
-      link,
-      category,
+      description,
     });
     res.status(201).json({
       success: true,
-      message: "Portfolio Created Successfully",
+      message: "SERVICE Created Successfully",
       data,
     });
-    console.log(title, img, link, category);
+    console.log(title, img, description);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -25,13 +24,13 @@ exports.createPortfolio = async (req, res) => {
     });
   }
 };
-//! Portfolio GET ALL
-exports.allPortfolio = async (req, res) => {
+//! SERVICE GET ALL
+exports.allService = async (req, res) => {
   try {
-    let data = await portfolioModel.find();
+    let data = await serviceModel.find();
     res.status(201).json({
       success: true,
-      message: " ALL Portfolio Data Get Successfully",
+      message: " ALL SERVICE Data Get Successfully",
       data,
     });
   } catch (error) {
@@ -42,14 +41,14 @@ exports.allPortfolio = async (req, res) => {
     });
   }
 };
-//! Portfolio SINGLE DATA GET
-exports.singlePortfolio = async (req, res) => {
+//! SERVICE SINGLE DATA GET
+exports.singleService = async (req, res) => {
   try {
     let { id } = req.params;
-    let data = await portfolioModel.findById(id);
+    let data = await serviceModel.findById(id);
     res.status(201).json({
       success: true,
-      message: " ALL Portfolio Data Get Successfully",
+      message: " ALL SERVICE Data Get Successfully",
       data,
     });
   } catch (error) {
@@ -60,19 +59,19 @@ exports.singlePortfolio = async (req, res) => {
     });
   }
 };
-//! Portfolio SINGLE DATA UPDATE
-exports.updatePortfolio = async (req, res) => {
+//! SERVICE SINGLE DATA UPDATE
+exports.updateService = async (req, res) => {
   try {
     let { id } = req.params;
-    let { title, img, link, category } = req.body;
-    let data = await portfolioModel.findByIdAndUpdate(
+    let { title, img, description } = req.body;
+    let data = await serviceModel.findByIdAndUpdate(
       id,
-      { title, img, link, category },
+      { title, img, description },
       { new: true },
     );
     res.status(201).json({
       success: true,
-      message: " Portfolio Data UPDATE Successfully",
+      message: " SERVICE Data UPDATED Successfully",
       data,
     });
   } catch (error) {
@@ -83,14 +82,14 @@ exports.updatePortfolio = async (req, res) => {
     });
   }
 };
-//! Portfolio SINGLE DATA DELETE
-exports.deletePortfolio = async (req, res) => {
+//! SERVICE SINGLE DATA DELETE
+exports.deleteService = async (req, res) => {
   try {
     let { id } = req.params;
-    let data = await portfolioModel.findByIdAndDelete(id);
+    let data = await serviceModel.findByIdAndDelete(id);
     res.status(201).json({
       success: true,
-      message: " Portfolio Data DELETED Successfully",
+      message: " SERVICE Data DELETED Successfully",
       data,
     });
   } catch (error) {

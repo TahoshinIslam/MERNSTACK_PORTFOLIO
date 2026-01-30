@@ -4,6 +4,7 @@ const advantageModel = require("../models/advantageModel");
 exports.createAdvantage = async (req, res) => {
   try {
     let { title, category, percent, time } = req.body;
+    let userId = req.headers._id;
 
     // Validate required fields
     if (!title || !category || !percent || !time) {
@@ -14,6 +15,7 @@ exports.createAdvantage = async (req, res) => {
     }
 
     let data = await advantageModel.create({
+      userId,
       title,
       category,
       percent,

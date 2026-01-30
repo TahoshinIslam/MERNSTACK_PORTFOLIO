@@ -3,6 +3,9 @@ const userController = require("../controllers/userController");
 const experienceController = require("../controllers/experienceController");
 const educationController = require("../controllers/educationController");
 const advantageController = require("../controllers/advantageController");
+const portfolioController = require("../controllers/portfolioController");
+const serviceController = require("../controllers/serviceController");
+const testimonialController = require("../controllers/testimonialController");
 const middlewares = require("../middlewares/authVerification");
 let router = express.Router();
 
@@ -70,4 +73,51 @@ router.delete(
   advantageController.deleteAdvantage,
 );
 
+//! API FOR PORTFOLIO
+router.post(
+  "/create-portfolio",
+  middlewares,
+  portfolioController.createPortfolio,
+);
+router.get("/all-portfolio", portfolioController.allPortfolio);
+router.get("/single-portfolio/:id", portfolioController.singlePortfolio);
+router.put(
+  "/update-portfolio/:id",
+  middlewares,
+  portfolioController.updatePortfolio,
+);
+router.delete(
+  "/delete-portfolio/:id",
+  middlewares,
+  portfolioController.deletePortfolio,
+);
+
+//! API FOR SERVICE
+router.post("/create-service", middlewares, serviceController.createService);
+router.get("/all-service", serviceController.allService);
+router.get("/single-service/:id", serviceController.singleService);
+router.put("/update-service/:id", middlewares, serviceController.updateService);
+router.delete(
+  "/delete-service/:id",
+  middlewares,
+  serviceController.deleteService,
+);
+//! API FOR Testimonial
+router.post(
+  "/create-testimonial",
+  middlewares,
+  testimonialController.createTestimonial,
+);
+router.get("/all-testimonial", testimonialController.allTestimonial);
+router.get("/single-testimonial/:id", testimonialController.singleTestimonial);
+router.put(
+  "/update-testimonial/:id",
+  middlewares,
+  testimonialController.updateTestimonial,
+);
+router.delete(
+  "/delete-testimonial/:id",
+  middlewares,
+  testimonialController.deleteTestimonial,
+);
 module.exports = router;

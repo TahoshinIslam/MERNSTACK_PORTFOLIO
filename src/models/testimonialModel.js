@@ -1,25 +1,19 @@
 const mongoose = require("mongoose");
 const DataSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-      required: true,
-    },
-    title: {
+    clientName: {
       type: String,
       required: true,
     },
-    company: {
+    address: {
       type: String,
       required: true,
     },
 
-    description: {
+    img: {
       type: String,
-      required: true,
     },
-    time: {
+    feedback: {
       type: String,
       required: true,
     },
@@ -29,5 +23,5 @@ const DataSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
-const experienceModel = mongoose.model("experiences", DataSchema);
-module.exports = experienceModel;
+const testimonialModel = mongoose.model("testimonials", DataSchema);
+module.exports = testimonialModel;

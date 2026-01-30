@@ -1,22 +1,22 @@
-const portfolioModel = require("../models/portfolioModel");
-//! Portfolio CREATE
+const testimonialModel = require("../models/testimonialModel");
+//! TESTIMONIAL CREATE
 
-exports.createPortfolio = async (req, res) => {
+exports.createTestimonial = async (req, res) => {
   try {
-    let { title, img, link, category } = req.body;
+    let { clientName, address, img, feedback } = req.body;
 
-    let data = await portfolioModel.create({
-      title,
+    let data = await testimonialModel.create({
+      clientName,
+      address,
       img,
-      link,
-      category,
+      feedback,
     });
     res.status(201).json({
       success: true,
-      message: "Portfolio Created Successfully",
+      message: "TESTIMONIAL Created Successfully",
       data,
     });
-    console.log(title, img, link, category);
+    console.log(title, img, description);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -25,13 +25,13 @@ exports.createPortfolio = async (req, res) => {
     });
   }
 };
-//! Portfolio GET ALL
-exports.allPortfolio = async (req, res) => {
+//! TESTIMONIAL GET ALL
+exports.allTestimonial = async (req, res) => {
   try {
-    let data = await portfolioModel.find();
+    let data = await testimonialModel.find();
     res.status(201).json({
       success: true,
-      message: " ALL Portfolio Data Get Successfully",
+      message: " ALL TESTIMONIALData Get Successfully",
       data,
     });
   } catch (error) {
@@ -42,14 +42,14 @@ exports.allPortfolio = async (req, res) => {
     });
   }
 };
-//! Portfolio SINGLE DATA GET
-exports.singlePortfolio = async (req, res) => {
+//! TESTIMONIAL SINGLE DATA GET
+exports.singleTestimonial = async (req, res) => {
   try {
     let { id } = req.params;
-    let data = await portfolioModel.findById(id);
+    let data = await testimonialModel.findById(id);
     res.status(201).json({
       success: true,
-      message: " ALL Portfolio Data Get Successfully",
+      message: " ALL TESTIMONIAL Data Get Successfully",
       data,
     });
   } catch (error) {
@@ -60,19 +60,19 @@ exports.singlePortfolio = async (req, res) => {
     });
   }
 };
-//! Portfolio SINGLE DATA UPDATE
-exports.updatePortfolio = async (req, res) => {
+//! TESTIMONIAL SINGLE DATA UPDATE
+exports.updateTestimonial = async (req, res) => {
   try {
     let { id } = req.params;
-    let { title, img, link, category } = req.body;
-    let data = await portfolioModel.findByIdAndUpdate(
+    let { clientName, address, img, feedback } = req.body;
+    let data = await testimonialModel.findByIdAndUpdate(
       id,
-      { title, img, link, category },
+      { clientName, address, img, feedback },
       { new: true },
     );
     res.status(201).json({
       success: true,
-      message: " Portfolio Data UPDATE Successfully",
+      message: " TESTIMONIAL Data UPDATED Successfully",
       data,
     });
   } catch (error) {
@@ -83,14 +83,14 @@ exports.updatePortfolio = async (req, res) => {
     });
   }
 };
-//! Portfolio SINGLE DATA DELETE
-exports.deletePortfolio = async (req, res) => {
+//! TESTIMONIAL SINGLE DATA DELETE
+exports.deleteTestimonial = async (req, res) => {
   try {
     let { id } = req.params;
-    let data = await portfolioModel.findByIdAndDelete(id);
+    let data = await testimonialModel.findByIdAndDelete(id);
     res.status(201).json({
       success: true,
-      message: " Portfolio Data DELETED Successfully",
+      message: " TESTIMONIAL Data DELETED Successfully",
       data,
     });
   } catch (error) {

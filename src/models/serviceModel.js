@@ -5,17 +5,11 @@ const DataSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+    },
     img: {
       type: String,
-      required: true,
-    },
-
-    link: {
-      type: String,
-    },
-    category: {
-      type: String,
-      required: true,
     },
   },
   {
@@ -23,5 +17,5 @@ const DataSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
-const portfolioModel = mongoose.model("portfolios", DataSchema);
-module.exports = portfolioModel;
+const serviceModel = mongoose.model("services", DataSchema);
+module.exports = serviceModel;
