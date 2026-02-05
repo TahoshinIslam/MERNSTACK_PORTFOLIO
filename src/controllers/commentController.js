@@ -13,7 +13,7 @@ exports.createComment = async (req, res) => {
     });
     res.status(201).json({
       success: true,
-      message: "COMMENT Created Successfully",
+      message: "COMMENT Sent Successfully",
       data,
     });
     console.log(blogID, name, email, comment);

@@ -136,7 +136,7 @@ router.delete(
 
 //! API FOR BLOG
 router.post("/create-blog", middlewares, blogController.createBlog);
-router.get("/all-blog", blogController.allBlog);
+router.get("/all-blog/:pageNo/:perPage", blogController.allBlog);
 router.get("/single-blog/:id", blogController.singleBlog);
 router.put("/update-blog/:id", middlewares, blogController.updateBlog);
 router.delete("/delete-blog/:id", middlewares, blogController.deleteBlog);

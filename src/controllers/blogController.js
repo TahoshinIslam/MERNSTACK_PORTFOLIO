@@ -9,6 +9,7 @@ exports.createBlog = async (req, res) => {
       title,
       category,
       img,
+      shortDescription,
       description,
     });
     res.status(201).json({
@@ -30,9 +31,7 @@ exports.allBlog = async (req, res) => {
   try {
     let pageNo = Number(req.params.pageNo);
     let perPage = Number(req.params.perPage);
-    s;
-    s;
-    sss;
+
     res.status(201).json({
       success: true,
       message: " ALL Blog Data Get Successfully",
