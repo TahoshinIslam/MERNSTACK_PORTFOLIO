@@ -154,4 +154,19 @@ exports.update = async (req, res) => {
   }
 };
 
-//! DELETE USER
+//! FILE UPLOAD
+exports.upload = async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      message: "File uploaded successfully",
+      data: req.file,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.toString(),
+      message: "Something Went Wrong",
+    });
+  }
+};

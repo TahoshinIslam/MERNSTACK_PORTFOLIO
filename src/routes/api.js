@@ -10,6 +10,7 @@ const contactController = require("../controllers/contactController");
 const blogController = require("../controllers/blogController");
 const commentController = require("../controllers/commentController");
 const middlewares = require("../middlewares/authVerification");
+const fileUploads = require("../middlewares/fileUploads");
 let router = express.Router();
 
 //! API FOR USER
@@ -18,6 +19,15 @@ router.post("/login", userController.login);
 router.get("/user", middlewares, userController.user);
 router.get("/logout", middlewares, userController.logout);
 router.put("/update", middlewares, userController.update);
+
+//!API For File Upload
+
+router.post(
+  "/file-upload",
+  middlewares,
+  fileUploads.single("file"),
+  userController.upload,
+);
 
 //! API FOR Experience
 router.post(
