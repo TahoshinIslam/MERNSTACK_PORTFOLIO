@@ -8,7 +8,7 @@ const hpp = require("hpp");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
-const router = require("./src/routes/api");
+const router = require("./backend/src/routes/api");
 const app = new express();
 
 app.use(cookieParser());
