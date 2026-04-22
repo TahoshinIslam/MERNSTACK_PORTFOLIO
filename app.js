@@ -16,7 +16,7 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
   }),
 );
@@ -56,7 +56,11 @@ app.use(limiter);
 
 //api end point tag
 
+// Add this line
+app.get("/", (req, res) => {
+  res.json({ status: "success", message: "API is running!" });
+});
+
 app.use("/api/v1", router);
-app.use(express.static("client"));
-app.use("/api/v1/get-file", express.static("uploads"));
+
 module.exports = app;
