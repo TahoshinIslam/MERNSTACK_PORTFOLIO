@@ -18,7 +18,6 @@ exports.createBlog = async (req, res) => {
       message: "BLOG Created Successfully",
       data,
     });
-    console.log(title, category, img, shortDescription, description);
   } catch (error) {
     return res.status(500).json({
       success: false,

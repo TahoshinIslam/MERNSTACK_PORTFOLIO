@@ -1,46 +1,99 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { getUser, login as apiLogin, logout as apiLogout, register as apiRegister } from '../api';
+import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { getUser as me, login as apiLogin, logout as apiLogout, register as apiRegister } from "@/api";
 
-const AuthContext = createContext(null);
+
+const AuthContext = createContext();
+
+// ✅ Hook
+export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
-  const [user, setUser]       = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState('');
 
+  // ✅ ADD THESE
+  const [error, setError] = useState(""); 
+  const isLoggingRef = useRef(false);
+
+  // Load from localStorage on mount
   useEffect(() => {
-    getUser()
-      .then(r => setUser(r.data?.data || r.data))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+    const saved = localStorage.getItem('user');
+    if (saved) {
+      setUser(JSON.parse(saved));
+      setLoading(false);
+      return;
+    }
   }, []);
 
-  const login = async (creds) => {
-    setError('');
-    const r = await apiLogin(creds);
-    const u = r.data?.data || r.data;
-    setUser(u);
-    return u;
+  useEffect(() => {
+    let retries = 3;
+    const tryMe = async () => {
+      try {
+        const r = await me();
+        const user = r.data?.result?.[0] ?? r.data?.data ?? r.data;
+        setUser(user);
+        if (user) localStorage.setItem('user', JSON.stringify(user));
+      } catch (e) {
+        console.log('Session restore failed:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    tryMe();
+  }, []);
+
+  const login = async (credentials) => {
+    if (isLoggingRef.current) return;
+    isLoggingRef.current = true;
+    try {
+      const res = await apiLogin(credentials);
+      const r = res.data;
+      const user = r?.user ?? r?.result?.[0] ?? r?.data ?? r;
+      setUser(user);
+      if (user) localStorage.setItem('user', JSON.stringify(user));
+    } finally {
+      isLoggingRef.current = false;
+    }
   };
 
-  const register = async (creds) => {
-    setError('');
-    const r = await apiRegister(creds);
-    const u = r.data?.data || r.data;
-    setUser(u);
-    return u;
+  // ✅ ADD THIS (you were missing it)
+  const register = async (credentials) => {
+    if (isLoggingRef.current) return;
+    isLoggingRef.current = true;
+    try {
+      const res = await apiRegister(credentials);
+      const r = res.data;
+      const user = r?.result ?? r?.data ?? r;
+      setUser(user);
+      if (user) localStorage.setItem('user', JSON.stringify(user));
+    } finally {
+      isLoggingRef.current = false;
+    }
   };
 
   const logout = async () => {
-    await apiLogout().catch(() => {});
+    try {
+      await apiLogout();
+    } catch (e) {}
     setUser(null);
+    localStorage.removeItem('user');
+    window.location.href = '/login';
   };
 
+
   return (
-    <AuthContext.Provider value={{ user, loading, error, setError, login, logout, register }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,   // ✅ now exists
+        logout,
+        error,      // ✅ now exists
+        setError    // ✅ now exists
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
-
-export const useAuth = () => useContext(AuthContext);

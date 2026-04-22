@@ -5,6 +5,10 @@ import path from "path";
 export default defineConfig({
   plugins: [react()],
 
+  optimizeDeps: {
+    exclude: [],
+  },
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -18,6 +22,10 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
+        target: "http://localhost:5005",
+        changeOrigin: true,
+      },
+      "/api/v1": {
         target: "http://localhost:5005",
         changeOrigin: true,
       },

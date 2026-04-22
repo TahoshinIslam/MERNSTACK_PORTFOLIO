@@ -13,12 +13,14 @@ const app = new express();
 
 app.use(cookieParser());
 app.use(helmet());
+
 app.use(
   cors({
-    origin: true,
+    origin: "http://localhost:5173",
     credentials: true,
   }),
 );
+
 app.use(mongoSanitize());
 
 app.use(hpp());
@@ -39,7 +41,17 @@ mongoose
     console.log("Database connection failed", err);
   });
 
-let limiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 100 });
+let limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 1000,
+  skip: (req) => {
+    return (
+      req.path === "/api/v1/register" ||
+      req.path === "/api/v1/login" ||
+      req.path === "/api/v1/user"
+    );
+  },
+});
 app.use(limiter);
 
 //api end point tag

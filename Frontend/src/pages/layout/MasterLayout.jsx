@@ -1,313 +1,228 @@
-import React, { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { BiMenuAltRight } from "react-icons/bi";
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-  FaTwitter,
-  FaXmark,
-} from "react-icons/fa6";
-const MasterLayout = ({ children }) => {
-  const [sidebar, setSidebar] = useState(false);
+import { useState, useEffect } from 'react';
+import { Link, NavLink } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 
-  const sidebarControl = () => {
-    setSidebar(!sidebar);
-  };
+const NAV_LINKS = [
+  { to: '/',          label: 'Home'      },
+  { to: '/about',     label: 'About'     },
+  { to: '/portfolio', label: 'Portfolio' },
+  { to: '/service',   label: 'Services'  },
+  { to: '/blog',      label: 'Blog'      },
+  { to: '/contact',   label: 'Contact'   },
+];
+
+export default function MasterLayout({ children }) {
+  const [menuOpen,   setMenuOpen]   = useState(false);
+  const [scrolled,   setScrolled]   = useState(false);
+  const { mode, toggleMode }         = useTheme();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Close menu on route change
+  useEffect(() => { setMenuOpen(false); }, []);
+
+  const isDark = mode === 'dark';
 
   return (
-    <>
-      <div>
-        <div className='bg-img'></div>
-        {/* Header Section */}
-        <header className='relative z-[99]'>
-          <div className=' container mx-auto  pt-[30px]'>
-            <div className=' flex justify-between rounded-[10px] bg-card px-[15px]  py-[30px] md:px-[30px]'>
-              <div className='logo flex items-center '>
-                <Link to={"/"}>
-                  <img
-                    src={"/assets/images/logo.svg"}
-                    alt='Lariv - React Portfolio Template'
-                  />
-                </Link>
-              </div>
-              <menu className='hidden items-center lg:flex'>
-                <ul className='flex  gap-[40px]'>
-                  <li>
-                    <NavLink
-                      className={(navData) =>
-                        navData.isActive ? "navActive " : "navNotActive "
-                      }
-                      to={"/"}
-                    >
-                      Home
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      className={(navData) =>
-                        navData.isActive ? "navActive" : "navNotActive"
-                      }
-                      to={"/about"}
-                    >
-                      About Us
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      className={(navData) =>
-                        navData.isActive ? "navActive" : "navNotActive"
-                      }
-                      to={"/portfolio"}
-                    >
-                      Portfolio
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      className={(navData) =>
-                        navData.isActive ? "navActive" : "navNotActive"
-                      }
-                      to={"/service"}
-                    >
-                      Service
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      className={(navData) =>
-                        navData.isActive ? "navActive" : "navNotActive"
-                      }
-                      to={"/blog"}
-                    >
-                      Blog
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      className={(navData) =>
-                        navData.isActive ? "navActive" : "navNotActive"
-                      }
-                      to={"/contact"}
-                    >
-                      Contact
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      className={(navData) =>
-                        navData.isActive ? "navActive" : "navNotActive"
-                      }
-                      to={"/dashboard"}
-                    >
-                      Dashboard
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      className={(navData) =>
-                        navData.isActive ? "navActive" : "navNotActive"
-                      }
-                      to={"/login"}
-                    >
-                      Login
-                    </NavLink>
-                  </li>
-                </ul>
-              </menu>
-              <div className='block lg:hidden'>
-                <div className='flex items-center gap-4	 px-[10px]'>
-                  <span
-                    onClick={sidebarControl}
-                    className='rounded-full border border-[#919295] p-[10px] text-[25px] '
-                  >
-                    <BiMenuAltRight className='text-text ' />
-                  </span>
-                </div>
-              </div>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
+      {/* ── Header ──────────────────────────────────────────────── */}
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        padding: scrolled ? '12px 0' : '20px 0',
+        background: scrolled
+          ? (isDark ? 'rgba(13,14,17,0.92)' : 'rgba(245,244,240,0.92)')
+          : 'transparent',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+        transition: 'padding 0.3s, background 0.3s, border-color 0.3s',
+      }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Logo */}
+          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 36, height: 36,
+              background: 'var(--gold-dim)',
+              border: '1px solid var(--gold)',
+              borderRadius: 10,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span style={{ fontFamily: 'var(--serif)', fontSize: 18, color: 'var(--gold)', fontWeight: 700 }}>P</span>
             </div>
-          </div>
-        </header>
-        {/* sidebar intro */}
-        <div
-          className={`sidebar fixed ${
-            sidebar ? "left-0" : "left-[100%]"
-          }  top-0 z-[999]  h-full w-full bg-btn/60 transition-all duration-500`}
-        >
-          <div className='ml-auto h-full min-h-[750px] w-[300px] bg-card  px-[30px] pt-[60px] md:min-h-[700px]'>
-            <div className='relative flex justify-center'>
-              <span
-                onClick={sidebarControl}
-                className='group absolute left-[-78px] rounded-lg bg-card   px-[15px] py-[10px] text-[26px]'
+            <span style={{ fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 700, color: 'var(--gold)' }}>
+              Portfolio
+            </span>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav style={{ display: 'none', gap: 4, alignItems: 'center' }} className="desktop-nav">
+            {NAV_LINKS.map(link => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.to === '/'}
+                style={({ isActive }) => ({
+                  padding: '7px 14px',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  color: isActive ? 'var(--gold)' : 'var(--muted2)',
+                  background: isActive ? 'var(--gold-dim)' : 'transparent',
+                  transition: 'color 0.2s, background 0.2s',
+                })}
               >
-                <FaXmark className='text-white  transition-all duration-500  group-hover:rotate-90 group-hover:text-theme' />
-              </span>
-              <div>
-                <img
-                  src='/assets/images/logo.svg'
-                  alt='Lariv - React Portfolio Template'
-                />
-              </div>
-            </div>
-            <div className='my-[30px] border-t border-[#ddd] '></div>
-            <nav className='mt-[30px]'>
-              <ul className='grid gap-[14px]'>
-                <li className='text-[18px] font-semibold'>
-                  <NavLink
-                    className={(navData) =>
-                      navData.isActive
-                        ? "inline-block py-[8px] text-theme "
-                        : "inline-block py-[8px]  text-white transition-all duration-300 hover:text-theme"
-                    }
-                    to={"/"}
-                  >
-                    Home
-                  </NavLink>
-                </li>
-                <li className='text-[18px] font-semibold'>
-                  <NavLink
-                    className={(navData) =>
-                      navData.isActive
-                        ? "inline-block py-[8px] text-theme "
-                        : "inline-block py-[8px]  text-white transition-all duration-300 hover:text-theme"
-                    }
-                    to={"/about"}
-                  >
-                    About Us
-                  </NavLink>
-                </li>
-                <li className=' text-[18px] font-semibold'>
-                  <NavLink
-                    className={(navData) =>
-                      navData.isActive
-                        ? "inline-block py-[8px] text-theme "
-                        : "inline-block py-[8px]  text-white transition-all duration-300 hover:text-theme"
-                    }
-                    to={"/portfolio"}
-                  >
-                    Portfolio
-                  </NavLink>
-                </li>
-                <li className=' text-[18px] font-semibold'>
-                  <NavLink
-                    className={(navData) =>
-                      navData.isActive
-                        ? "inline-block py-[8px] text-theme "
-                        : "inline-block py-[8px]  text-white transition-all duration-300 hover:text-theme"
-                    }
-                    to={"/blog"}
-                  >
-                    Blog
-                  </NavLink>
-                </li>
-                <li className=' text-[18px] font-semibold'>
-                  <NavLink
-                    className={(navData) =>
-                      navData.isActive
-                        ? "inline-block py-[8px] text-theme "
-                        : "inline-block py-[8px]  text-white transition-all duration-300 hover:text-theme"
-                    }
-                    to={"/service"}
-                  >
-                    Services
-                  </NavLink>
-                </li>
-                <li className=' text-[18px] font-semibold'>
-                  <NavLink
-                    className={(navData) =>
-                      navData.isActive
-                        ? "inline-block py-[8px]  text-theme"
-                        : "inline-block py-[8px]  text-white transition-all duration-300 hover:text-theme"
-                    }
-                    to={"/contact"}
-                  >
-                    Contact
-                  </NavLink>
-                </li>
-                <li className=' text-[18px] font-semibold'>
-                  <NavLink
-                    className={(navData) =>
-                      navData.isActive
-                        ? "inline-block py-[8px]  text-theme"
-                        : "inline-block py-[8px]  text-white transition-all duration-300 hover:text-theme"
-                    }
-                    to={"/dashboard"}
-                  >
-                    Dashboard
-                  </NavLink>
-                </li>
-                <li className=' text-[18px] font-semibold'>
-                  <NavLink
-                    className={(navData) =>
-                      navData.isActive
-                        ? "inline-block py-[8px]  text-theme"
-                        : "inline-block py-[8px]  text-white transition-all duration-300 hover:text-theme"
-                    }
-                    to={"/login"}
-                  >
-                    Login
-                  </NavLink>
-                </li>
-              </ul>
-            </nav>
-            <div className='my-[30px] border-t border-[#ddd] '></div>
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
 
-            <div className='contact mt-[40px] pb-[20px] md:mt-[0px]'>
-              <div>
-                <p className='text-[20px] font-semibold  text-white'>
-                  Follow Me:
-                </p>
+          {/* Right controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {/* Theme toggle */}
+            <button
+              onClick={toggleMode}
+              title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+              style={{
+                width: 36, height: 36,
+                borderRadius: 10,
+                border: '1px solid var(--border2)',
+                background: 'var(--bg2)',
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 16,
+                color: 'var(--muted2)',
+              }}
+            >
+              {isDark ? '☀️' : '🌙'}
+            </button>
 
-                <div className='mt-[20px] flex gap-3'>
-                  <Link to={"/"}>
-                    <button className='boxShadow rounded-lg bg-btn  p-[10px] text-[18px] text-text shadow-none transition duration-300  hover:text-theme '>
-                      <FaFacebookF />
-                    </button>
-                  </Link>
-                  <Link to={"/"}>
-                    <button className='boxShadow rounded-lg bg-btn  p-[10px] text-[18px] text-text shadow-none transition duration-300  hover:text-theme '>
-                      <FaTwitter />
-                    </button>
-                  </Link>
-                  <Link to={"/"}>
-                    <button className='boxShadow rounded-lg bg-btn  p-[10px] text-[18px] text-text shadow-none transition duration-300  hover:text-theme '>
-                      <FaLinkedinIn />
-                    </button>
-                  </Link>
-                  <Link to={"/"}>
-                    <button className='boxShadow rounded-lg bg-btn  p-[10px] text-[18px] text-text shadow-none transition duration-300  hover:text-theme '>
-                      <FaInstagram />
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            </div>
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMenuOpen(v => !v)}
+              style={{
+                display: 'flex', flexDirection: 'column', gap: 4, padding: 8,
+                border: '1px solid var(--border2)', borderRadius: 8,
+                background: 'var(--bg2)', cursor: 'pointer',
+              }}
+              aria-label="Toggle menu"
+            >
+              {[0, 1, 2].map(i => (
+                <span key={i} style={{
+                  width: 18, height: 1.5, borderRadius: 2,
+                  background: 'var(--text)',
+                  display: 'block',
+                  transition: 'transform 0.3s, opacity 0.3s',
+                  transform: menuOpen
+                    ? i === 0 ? 'rotate(45deg) translate(3.5px, 3.5px)'
+                    : i === 2 ? 'rotate(-45deg) translate(3.5px, -3.5px)'
+                    : 'none' : 'none',
+                  opacity: menuOpen && i === 1 ? 0 : 1,
+                }} />
+              ))}
+            </button>
           </div>
         </div>
-        {/* Info Card Section */}
-        <section className='relative z-[99]'>
-          <div className='main__body'>{children}</div>
-        </section>
-        {/* Footer Section */}
-        <footer className='relative z-[9]'>
-          <div className='container mx-auto  flex justify-center pb-[40px]'>
-            <div>
-              <p className='text-center text-text'>
-                Copyright <span className='text-theme'>Rownak</span> ©
-                {new Date().getFullYear()}. All rights reserved
-              </p>
-              <div className='mt-[20px] flex justify-center text-center'>
-                <img
-                  src='/assets/images/logo.svg'
-                  alt='Lariv - React Portfolio Template'
-                />
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </>
-  );
-};
+      </header>
 
-export default MasterLayout;
+      {/* ── Mobile drawer ────────────────────────────────────────── */}
+      <div style={{
+        position: 'fixed', top: 0, right: 0, bottom: 0,
+        width: 280,
+        background: 'var(--bg2)',
+        borderLeft: '1px solid var(--border)',
+        zIndex: 200,
+        transform: menuOpen ? 'translateX(0)' : 'translateX(100%)',
+        transition: 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+        padding: '72px 28px 28px',
+        display: 'flex', flexDirection: 'column',
+      }}>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {NAV_LINKS.map(link => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.to === '/'}
+              onClick={() => setMenuOpen(false)}
+              style={({ isActive }) => ({
+                padding: '11px 16px',
+                borderRadius: 8,
+                fontSize: 15,
+                fontWeight: 500,
+                textDecoration: 'none',
+                color: isActive ? 'var(--gold)' : 'var(--muted2)',
+                background: isActive ? 'var(--gold-dim)' : 'transparent',
+              })}
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div style={{ marginTop: 'auto', paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+          <Link
+            to="/login"
+            onClick={() => setMenuOpen(false)}
+            style={{
+              display: 'block', padding: '10px 16px',
+              background: 'var(--gold)', color: '#0d0e11',
+              borderRadius: 8, textDecoration: 'none',
+              fontSize: 13, fontWeight: 600, textAlign: 'center',
+            }}
+          >
+            Admin Login
+          </Link>
+        </div>
+      </div>
+
+      {/* Overlay */}
+      {menuOpen && (
+        <div
+          onClick={() => setMenuOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 150,
+            background: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(4px)',
+            animation: 'fadeIn 0.2s ease',
+          }}
+        />
+      )}
+
+      {/* Desktop nav style injection */}
+      <style>{`
+        @media (min-width: 768px) {
+          .desktop-nav { display: flex !important; }
+        }
+      `}</style>
+
+      {/* ── Main content ─────────────────────────────────────────── */}
+      <main style={{ flex: 1 }}>
+        {children}
+      </main>
+
+      {/* ── Footer ──────────────────────────────────────────────── */}
+      <footer style={{
+        borderTop: '1px solid var(--border)',
+        padding: '40px 28px',
+        textAlign: 'center',
+      }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--gold)', marginBottom: 8 }}>Portfolio</div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 20 }}>
+            {NAV_LINKS.map(link => (
+              <Link key={link.to} to={link.to} style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none' }}>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+            Copyright <span style={{ color: 'var(--gold)' }}>Portfolio</span> © {new Date().getFullYear()}. All rights reserved.
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

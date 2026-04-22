@@ -1,19 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
 
-/**
- * Generic CRUD page that renders a table + add/edit modal.
- *
- * Props:
- *  title       – section title
- *  api         – { getAll, create, update, remove } (getAll may accept args)
- *  apiArgs     – array of extra args passed to getAll (e.g. [page, per])
- *  columns     – [{ key, label, render? }]
- *  fields      – [{ key, label, type, required, fullWidth, options }]
- *  emptyMsg    – string shown when no rows
- *  imgField    – key for image column (optional)
- *  canEdit     – bool (default true)
- */
+
 export default function CrudPage({ title, api, apiArgs = [], columns, fields, emptyMsg, imgField, canEdit = true }) {
   const toast = useToast();
   const [rows,    setRows]    = useState([]);
@@ -29,7 +17,14 @@ export default function CrudPage({ title, api, apiArgs = [], columns, fields, em
       const r = await api.getAll(...apiArgs);
       const data = r.data?.data ?? r.data;
       setRows(Array.isArray(data) ? data : []);
-    } catch { toast('Failed to load data', 'error'); }
+    } catch (error) { 
+      toast(
+        error.response?.status === 401 
+          ? 'Session expired. Please login again.' 
+          : 'Failed to load data', 
+        'error'
+      ); 
+    }
     finally { setLoading(false); }
   };
 
@@ -81,7 +76,14 @@ export default function CrudPage({ title, api, apiArgs = [], columns, fields, em
       await api.remove(id);
       toast('Deleted', 'success');
       load();
-    } catch { toast('Delete failed', 'error'); }
+    } catch (error) { 
+      toast(
+        error.response?.status === 401 
+          ? 'Session expired. Please login again.' 
+          : 'Delete failed', 
+        'error'
+      ); 
+    }
   };
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
