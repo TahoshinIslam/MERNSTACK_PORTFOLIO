@@ -63,4 +63,15 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1", router);
 
+// Serve frontend static files in production
+if (process.env.NODE_ENV === "production") {
+  const path = require("path");
+  app.use(express.static(path.join(__dirname, "Frontend", "dist")));
+
+  // SPA fallback — send index.html for any non-API route
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "Frontend", "dist", "index.html"));
+  });
+}
+
 module.exports = app;
