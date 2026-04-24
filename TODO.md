@@ -5,5 +5,5 @@
 - [x] Update `vercel.json` for proper API + frontend routing
 - [x] Fix `.gitignore` to not ignore `package.json`
 - [x] Build frontend locally to test
-- [ ] Commit and push changes
-- [ ] Deploy to Vercel
+- [x] Commit and push changes
+- [x] Deploy to Vercel
