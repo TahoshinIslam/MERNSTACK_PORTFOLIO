@@ -7,10 +7,11 @@ function FadeIn({ children, delay = 0, style = {} }) {
 }
 
 const CONTACT_INFO = [
-  { icon: '📧', label: 'Email',    value: 'hello@portfolio.dev',     link: 'mailto:hello@portfolio.dev' },
-  { icon: '📍', label: 'Location', value: 'Dhaka, Bangladesh',        link: null },
+  { icon: '📧', label: 'Email',    value: 'tahoshinislam@gmail.com',     link: 'https://mail.google.com/mail/u/0/#inbox' },
+  { icon: '📍', label: 'Whatsapp', value: '01788853871',        link: null },
   { icon: '⏰', label: 'Response', value: 'Within 24 hours',          link: null },
-  { icon: '💼', label: 'LinkedIn', value: 'linkedin.com/in/portfolio', link: 'https://linkedin.com' },
+  { icon: '💼', label: 'LinkedIn', value: 'https://www.linkedin.com/in/tahoshin-islam-26611837a/', link: 'https://www.linkedin.com/in/tahoshin-islam-26611837a/' },
+  { icon: '💼', label: 'Github', value: 'https://github.com/TahoshinIslam', link: 'https://github.com/TahoshinIslam' },
 ];
 
 export default function Contact() {
@@ -70,20 +71,67 @@ export default function Contact() {
             </FadeIn>
 
             {/* Social links */}
-            <FadeIn delay={0.3}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 14 }}>Follow Me</div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                {['Twitter', 'GitHub', 'LinkedIn', 'Dribbble'].map(s => (
-                  <a key={s} href="#" style={{ width: 38, height: 38, borderRadius: 10, background: 'var(--bg2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, textDecoration: 'none', transition: 'border-color 0.2s' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--gold)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-                    title={s}
-                  >
-                    {s === 'Twitter' ? '𝕏' : s === 'GitHub' ? '⌥' : s === 'LinkedIn' ? 'in' : '◉'}
-                  </a>
-                ))}
-              </div>
-            </FadeIn>
+           <FadeIn delay={0.3}>
+  <div style={{ 
+    fontFamily: 'var(--mono)', 
+    fontSize: '10px', 
+    letterSpacing: '0.12em', 
+    textTransform: 'uppercase', 
+    color: 'var(--muted)', 
+    marginBottom: 16 
+  }}>
+    Follow Me
+  </div>
+
+  <div style={{ 
+    display: 'flex', 
+    gap: 12 
+  }}>
+    {[
+      { name: 'Twitter', icon: '𝕏', url: '#' },
+      { name: 'GitHub', icon: '⌘', url: '#' },
+      { name: 'LinkedIn', icon: 'in', url: '#' },
+      { name: 'Dribbble', icon: '◉', url: '#' }
+    ].map((social) => (
+      <a 
+        key={social.name}
+        href={social.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 12,
+          background: 'var(--bg2)',
+          border: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 18,
+          color: 'var(--text)',
+          textDecoration: 'none',
+          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.borderColor = 'var(--gold)';
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.boxShadow = '0 8px 20px -8px rgba(255, 215, 0, 0.15)';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.borderColor = 'var(--border)';
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+        title={social.name}
+        aria-label={social.name}
+      >
+        {social.icon}
+      </a>
+    ))}
+  </div>
+</FadeIn>
           </div>
 
           {/* Right — form */}

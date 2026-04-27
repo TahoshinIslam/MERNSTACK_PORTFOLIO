@@ -11,6 +11,10 @@ const DataSchema = new mongoose.Schema(
     img: {
       type: String,
     },
+    images: {
+      type: [String],
+      default: [],
+    },
   },
   {
     versionKey: false,

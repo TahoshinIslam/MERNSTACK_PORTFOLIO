@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from '../context/ThemeContext';
+import { resolveImg } from '../api';
 
 const NAV = [
   { label: 'Main', items: [
@@ -38,14 +40,31 @@ export default function Sidebar({ currentPath }) {
   const { user, logout }    = useAuth();
   const { mode, toggleMode } = useTheme();
   const navigate             = useNavigate();
+  const [open, setOpen]     = useState(false);
+
+  // Close drawer on route change
+  useEffect(() => { setOpen(false); }, [currentPath]);
 
   const isActive = (path) =>
     path === '/'
       ? currentPath === '/admin'
       : currentPath === path || currentPath.startsWith(path + '/');
 
+  const initials = (user?.name || user?.email || 'A')[0].toUpperCase();
+
   return (
-    <nav className="sidebar">
+    <>
+    {/* Mobile hamburger (only shown < 768px via CSS) */}
+    <button
+      className="sidebar-mobile-toggle"
+      onClick={() => setOpen(v => !v)}
+      aria-label="Toggle navigation"
+    >
+      <span /><span /><span />
+    </button>
+    {open && <div className="sidebar-overlay" onClick={() => setOpen(false)} />}
+
+    <nav className={`sidebar ${open ? 'is-open' : ''}`}>
       {/* Brand */}
       <div className="sidebar-brand">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 2 }}>
@@ -125,11 +144,14 @@ export default function Sidebar({ currentPath }) {
       {/* User footer */}
       <div className="sidebar-footer">
         <div className="user-pill">
-          <div className="user-avatar">
-            {user?.email?.[0]?.toUpperCase() || 'A'}
+          <div className="user-avatar" style={{ overflow: 'hidden' }}>
+            {user?.picture
+              ? <img src={resolveImg(user.picture)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
+              : initials
+            }
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="user-email">{user?.email}</div>
+            <div className="user-email">{user?.name || user?.email}</div>
             <div style={{ fontSize: 9, fontFamily: 'var(--mono)', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 1 }}>Administrator</div>
           </div>
           <button
@@ -144,6 +166,7 @@ export default function Sidebar({ currentPath }) {
         </div>
       </div>
     </nav>
+    </>
   );
 }
 

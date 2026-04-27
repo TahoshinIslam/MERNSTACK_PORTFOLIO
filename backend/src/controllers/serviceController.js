@@ -3,11 +3,12 @@ const serviceModel = require("../models/serviceModel");
 
 exports.createService = async (req, res) => {
   try {
-    let { title, img, description } = req.body;
+    let { title, img, images, description } = req.body;
 
     let data = await serviceModel.create({
       title,
       img,
+      images: Array.isArray(images) ? images : [],
       description,
     });
     res.status(201).json({
@@ -63,12 +64,10 @@ exports.singleService = async (req, res) => {
 exports.updateService = async (req, res) => {
   try {
     let { id } = req.params;
-    let { title, img, description } = req.body;
-    let data = await serviceModel.findByIdAndUpdate(
-      id,
-      { title, img, description },
-      { new: true },
-    );
+    let { title, img, images, description } = req.body;
+    let payload = { title, img, description };
+    if (Array.isArray(images)) payload.images = images;
+    let data = await serviceModel.findByIdAndUpdate(id, payload, { new: true });
     res.status(201).json({
       success: true,
       message: " SERVICE Data UPDATED Successfully",

@@ -19,7 +19,8 @@ export function PortfolioPage() {
       fields={[
         { key: 'title',    label: 'Title',    required: true },
         { key: 'category', label: 'Category', required: true, placeholder: 'e.g. Web Design' },
-        { key: 'img',      label: 'Image URL', fullWidth: true, placeholder: 'https://…' },
+        { key: 'img',      label: 'Cover Image', required: true, type: 'image' },
+        { key: 'images',   label: 'Additional Images (gallery)', type: 'gallery', maxFiles: 10 },
         { key: 'link',     label: 'Project Link', fullWidth: true, placeholder: 'https://…' },
       ]}
       emptyMsg="No portfolio items yet. Add your first project."
@@ -40,7 +41,8 @@ export function ServicesPage() {
       ]}
       fields={[
         { key: 'title',       label: 'Title',       required: true },
-        { key: 'img',         label: 'Image URL',   fullWidth: true, placeholder: 'https://…' },
+        { key: 'img',         label: 'Cover Image', type: 'image' },
+        { key: 'images',      label: 'Additional Images (gallery)', type: 'gallery', maxFiles: 10 },
         { key: 'description', label: 'Description', type: 'textarea', fullWidth: true },
       ]}
       emptyMsg="No services listed yet."
@@ -63,7 +65,7 @@ export function ExperiencePage() {
       fields={[
         { key: 'title',       label: 'Job Title',   required: true },
         { key: 'company',     label: 'Company',     required: true },
-        { key: 'time',        label: 'Time Period',  required: true, placeholder: 'e.g. 2020 – 2023' },
+        { key: 'time',        label: 'Time Period', required: true, placeholder: 'e.g. 2020 – 2023' },
         { key: 'description', label: 'Description', required: true, type: 'textarea', fullWidth: true },
       ]}
       emptyMsg="No experience records yet."
@@ -138,7 +140,7 @@ export function TestimonialsPage() {
       fields={[
         { key: 'clientName', label: 'Client Name', required: true },
         { key: 'address',    label: 'Location',    required: true },
-        { key: 'img',        label: 'Avatar URL',  fullWidth: true, placeholder: 'https://…' },
+        { key: 'img',        label: 'Avatar',      type: 'image' },
         { key: 'feedback',   label: 'Feedback',    required: true, type: 'textarea', fullWidth: true, rows: 4 },
       ]}
       emptyMsg="No testimonials yet."

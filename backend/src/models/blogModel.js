@@ -9,16 +9,18 @@ const DataSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     img: {
       type: String,
       required: true,
+    },
+    images: {
+      type: [String],
+      default: [],
     },
     shortDescription: {
       type: String,
       required: true,
     },
-
     description: {
       type: String,
       required: true,

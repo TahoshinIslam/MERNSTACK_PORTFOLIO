@@ -9,7 +9,10 @@ const DataSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
+    images: {
+      type: [String],
+      default: [],
+    },
     link: {
       type: String,
     },

@@ -2,16 +2,15 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const { EncodeToken } = require("../utility/tokenhelper");
 
-//! CREATE USER
+//! CREATE USER (kept for seeding/internal use; route is disabled publicly)
 exports.register = async (req, res) => {
   try {
-    let { email, password } = req.body;
+    let { email, password, name } = req.body;
 
-    // Password will be automatically hashed by the model's pre-save hook
-    // Do NOT hash manually here to avoid double hashing
     let result = await userModel.create({
       email,
       password, // Pass plain password - model will hash it automatically
+      name: name || "",
     });
 
     return res.status(201).json({
@@ -41,7 +40,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    //! password isMatch
     let isMatch = await bcrypt.compare(password, user.password);
 
     if (isMatch) {
@@ -53,15 +51,17 @@ exports.login = async (req, res) => {
         path: "/",
       };
 
-      //! set cookie
       res.cookie("token", token, option);
       res.status(200).json({
         success: true,
         message: "Login successful",
-
         user: {
           id: user._id,
           email: user.email,
+          name: user.name || "",
+          title: user.title || "",
+          picture: user.picture || "",
+          bio: user.bio || "",
         },
       });
     } else {
@@ -106,6 +106,7 @@ exports.user = async (req, res) => {
     });
   }
 };
+
 //! USER LOGOUT
 exports.logout = (req, res) => {
   try {
@@ -123,27 +124,32 @@ exports.logout = (req, res) => {
   }
 };
 
-//!USER UPDATE
+//! USER UPDATE — handles email/password AND profile fields (name, title, picture, bio)
 exports.update = async (req, res) => {
   try {
-    let { email, password } = req.body;
+    let { email, password, name, title, picture, bio } = req.body;
     let userId = req.headers._id;
-    let updatedData = { email };
+    let updatedData = {};
+
+    if (typeof email === "string" && email) updatedData.email = email;
+    if (typeof name === "string") updatedData.name = name;
+    if (typeof title === "string") updatedData.title = title;
+    if (typeof picture === "string") updatedData.picture = picture;
+    if (typeof bio === "string") updatedData.bio = bio;
 
     if (password) {
-      let hashPassword = await bcrypt.hash(password, 10);
-      updatedData.password = hashPassword;
+      updatedData.password = await bcrypt.hash(password, 10);
     }
-    console.log(updatedData);
 
-    // update user
-    await userModel.findByIdAndUpdate(userId, updatedData, {
+    const updated = await userModel.findByIdAndUpdate(userId, updatedData, {
       new: true,
+      projection: { password: 0 },
     });
 
     res.status(200).json({
       success: true,
       message: "User updated successfully",
+      user: updated,
     });
   } catch (error) {
     res.status(500).json({
@@ -154,13 +160,67 @@ exports.update = async (req, res) => {
   }
 };
 
-//! FILE UPLOAD
+//! PUBLIC PROFILE — owner's name/title/picture/bio for the public site
+exports.profile = async (req, res) => {
+  try {
+    // Personal portfolio assumption: a single admin user.
+    // Return the most recently created one.
+    const u = await userModel
+      .findOne({}, { password: 0, email: 0 })
+      .sort({ createdAt: 1 })
+      .lean();
+    res.status(200).json({
+      success: true,
+      data: u || null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.toString(),
+      message: "Something Went Wrong",
+    });
+  }
+};
+
+//! FILE UPLOAD — returns a public-facing URL for the uploaded file
 exports.upload = async (req, res) => {
   try {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No file received" });
+    }
+    const url = `/uploads/${req.file.filename}`;
     res.status(200).json({
       success: true,
       message: "File uploaded successfully",
       data: req.file,
+      url,
+      filename: req.file.filename,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.toString(),
+      message: "Something Went Wrong",
+    });
+  }
+};
+
+//! MULTIPLE FILE UPLOAD
+exports.uploadMany = async (req, res) => {
+  try {
+    if (!req.files || !req.files.length) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No files received" });
+    }
+    const urls = req.files.map((f) => `/uploads/${f.filename}`);
+    res.status(200).json({
+      success: true,
+      message: "Files uploaded successfully",
+      urls,
+      files: req.files,
     });
   } catch (error) {
     res.status(500).json({

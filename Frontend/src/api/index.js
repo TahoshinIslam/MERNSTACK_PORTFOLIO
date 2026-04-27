@@ -11,29 +11,44 @@ api.interceptors.response.use(
     // Skip redirect loop on auth routes from /login page
     if (
       error.config?.url?.includes("login") ||
-      error.config?.url?.includes("register") ||
       !window.location.pathname.startsWith("/admin")
     ) {
       return Promise.reject(error);
     }
     if (error.response?.status === 401) {
       localStorage.removeItem("user");
-      window.location.href = "/admin/login";
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   },
 );
 
 // Auth
-export const register = (data) => api.post("/register", data);
 export const login = (data) => api.post("/login", data);
 export const getUser = () => api.get("/user");
 export const logout = () => api.get("/logout");
 export const updateUser = (data) => api.put("/update", data);
-export const uploadFile = (form) =>
+export const getProfile = () => api.get("/profile"); // public
+export const uploadFile = (form, onUploadProgress) =>
   api.post("/file-upload", form, {
     headers: { "Content-Type": "multipart/form-data" },
+    onUploadProgress,
   });
+export const uploadFiles = (form, onUploadProgress) =>
+  api.post("/files-upload", form, {
+    headers: { "Content-Type": "multipart/form-data" },
+    onUploadProgress,
+  });
+
+// Helpers — resolve a stored image reference to a usable URL
+// (handles full URLs, /uploads/<filename>, and bare filenames from legacy data).
+export const resolveImg = (val) => {
+  if (!val) return "";
+  if (val.startsWith("http")) return val;
+  if (val.startsWith("/uploads/")) return val;
+  if (val.startsWith("/api/v1/get-file/")) return val;
+  return `/uploads/${val}`;
+};
 
 // Generic CRUD factory
 const crud = (base) => ({

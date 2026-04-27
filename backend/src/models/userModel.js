@@ -11,6 +11,12 @@ const DataSchema = new mongoose.Schema(
     },
 
     password: { type: String, required: true },
+
+    // Public-facing profile (admin/portfolio owner)
+    name: { type: String, default: "" },
+    title: { type: String, default: "" }, // e.g. "Full-Stack Developer"
+    picture: { type: String, default: "" }, // /uploads/<filename> or full URL
+    bio: { type: String, default: "" },
   },
   {
     versionKey: false,

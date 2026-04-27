@@ -14,8 +14,11 @@ const fileUploads = require("../middlewares/fileUploads");
 let router = express.Router();
 
 //! API FOR USER
-router.post("/register", userController.register);
+// NOTE: Public registration is intentionally disabled — this is a personal
+// portfolio admin panel, sign-in only. Use the seed/CLI script to create the
+// initial admin account directly in the database.
 router.post("/login", userController.login);
+router.get("/profile", userController.profile);
 router.get("/user", middlewares, userController.user);
 router.get("/logout", middlewares, userController.logout);
 router.put("/update", middlewares, userController.update);
@@ -27,6 +30,13 @@ router.post(
   middlewares,
   fileUploads.single("file"),
   userController.upload,
+);
+
+router.post(
+  "/files-upload",
+  middlewares,
+  fileUploads.array("files", 12),
+  userController.uploadMany,
 );
 
 //! API FOR Experience

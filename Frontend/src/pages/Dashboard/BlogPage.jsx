@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { blogAPI } from '../../api';
+import { blogAPI, resolveImg } from '../../api';
 import { useToast } from '../../context/ToastContext';
+import FileDrop from '../../components/FileDrop';
 
 export default function BlogPage() {
   const toast = useToast();
@@ -17,8 +18,10 @@ export default function BlogPage() {
     setLoading(true);
     try {
       const r = await blogAPI.getAll(page, PER);
-      const data = r.data?.data ?? r.data;
-      setRows(Array.isArray(data) ? data : []);
+      const d = r.data?.data ?? r.data;
+      // backend uses $facet → [{ totalCount, blogs }]
+      const blogs = Array.isArray(d) ? (d[0]?.blogs ?? d) : (d?.blogs ?? []);
+      setRows(Array.isArray(blogs) ? blogs : []);
     } catch { toast('Failed to load blogs', 'error'); }
     finally { setLoading(false); }
   };
@@ -26,13 +29,21 @@ export default function BlogPage() {
   useEffect(() => { load(); }, [page]);
 
   const openAdd = () => {
-    setForm({ title: '', category: '', img: '', shortDescription: '', description: '' });
+    setForm({ title: '', category: '', img: '', images: [], shortDescription: '', description: '' });
     setErr('');
     setModal('add');
   };
 
   const openEdit = (row) => {
-    setForm({ _id: row._id, title: row.title || '', category: row.category || '', img: row.img || '', shortDescription: row.shortDescription || '', description: row.description || '' });
+    setForm({
+      _id: row._id,
+      title: row.title || '',
+      category: row.category || '',
+      img: row.img || '',
+      images: Array.isArray(row.images) ? row.images : [],
+      shortDescription: row.shortDescription || '',
+      description: row.description || '',
+    });
     setErr('');
     setModal('edit');
   };
@@ -41,8 +52,8 @@ export default function BlogPage() {
 
   const handleSave = async () => {
     setErr('');
-    if (!form.title || !form.category || !form.shortDescription || !form.description) {
-      setErr('Title, category, short description and description are required.'); return;
+    if (!form.title || !form.category || !form.img || !form.shortDescription || !form.description) {
+      setErr('Title, category, cover image, short description and full content are all required.'); return;
     }
     setSaving(true);
     try {
@@ -108,7 +119,7 @@ export default function BlogPage() {
                 <tr key={row._id}>
                   <td className="td-img">
                     {row.img
-                      ? <img src={row.img.startsWith('http') ? row.img : `/api/v1/get-file/${row.img}`} alt="" className="row-img" onError={e => e.target.style.display='none'} />
+                      ? <img src={resolveImg(row.img)} alt="" className="row-img" onError={e => e.target.style.display='none'} />
                       : <div style={{ width:36, height:36, background:'var(--bg3)', borderRadius:6 }} />
                     }
                   </td>
@@ -141,7 +152,7 @@ export default function BlogPage() {
       {/* Modal */}
       {modal && (
         <div className="modal-overlay" onClick={e => e.target === e.currentTarget && close()}>
-          <div className="modal" style={{ maxWidth: 720 }}>
+          <div className="modal" style={{ maxWidth: 760 }}>
             <div className="modal-header">
               <h3>{modal === 'add' ? 'New Blog Post' : 'Edit Blog Post'}</h3>
               <button className="close-btn" onClick={close}>✕</button>
@@ -158,8 +169,23 @@ export default function BlogPage() {
                   <input value={form.category || ''} onChange={e => set('category', e.target.value)} placeholder="e.g. Technology" />
                 </div>
                 <div className="form-group" style={{ gridColumn: '1/-1' }}>
-                  <label>Image URL</label>
-                  <input value={form.img || ''} onChange={e => set('img', e.target.value)} placeholder="https://…" />
+                  <FileDrop
+                    mode="single"
+                    label="Cover Image *"
+                    hint="The main thumbnail shown on listings"
+                    value={form.img || ''}
+                    onChange={(v) => set('img', v)}
+                  />
+                </div>
+                <div className="form-group" style={{ gridColumn: '1/-1' }}>
+                  <FileDrop
+                    mode="multiple"
+                    label="Additional Images (gallery)"
+                    hint="Optional — extra images shown in the article body"
+                    value={form.images || []}
+                    onChange={(v) => set('images', v)}
+                    maxFiles={10}
+                  />
                 </div>
                 <div className="form-group" style={{ gridColumn: '1/-1' }}>
                   <label>Short Description *</label>

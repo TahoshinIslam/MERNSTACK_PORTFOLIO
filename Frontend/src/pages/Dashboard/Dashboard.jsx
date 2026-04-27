@@ -119,7 +119,7 @@ export default function Dashboard() {
   }, []);
 
   const totalItems = Object.values(counts).reduce((a, b) => typeof b === 'number' ? a + b : a, 0);
-  const name = user?.email ? user.email.split('@')[0] : 'Admin';
+  const name = user?.name || (user?.email ? user.email.split('@')[0] : 'Admin');
 
   return (
     <div>

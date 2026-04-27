@@ -3,11 +3,12 @@ const portfolioModel = require("../models/portfolioModel");
 
 exports.createPortfolio = async (req, res) => {
   try {
-    let { title, img, link, category } = req.body;
+    let { title, img, images, link, category } = req.body;
 
     let data = await portfolioModel.create({
       title,
       img,
+      images: Array.isArray(images) ? images : [],
       link,
       category,
     });
@@ -64,12 +65,12 @@ exports.singlePortfolio = async (req, res) => {
 exports.updatePortfolio = async (req, res) => {
   try {
     let { id } = req.params;
-    let { title, img, link, category } = req.body;
-    let data = await portfolioModel.findByIdAndUpdate(
-      id,
-      { title, img, link, category },
-      { new: true },
-    );
+    let { title, img, images, link, category } = req.body;
+    let payload = { title, img, link, category };
+    if (Array.isArray(images)) payload.images = images;
+    let data = await portfolioModel.findByIdAndUpdate(id, payload, {
+      new: true,
+    });
     res.status(201).json({
       success: true,
       message: " Portfolio Data UPDATE Successfully",

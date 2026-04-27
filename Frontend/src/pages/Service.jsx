@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import MasterLayout from './layout/MasterLayout';
-import { serviceAPI } from '../api';
+import { serviceAPI, resolveImg } from '../api';
 
 function FadeIn({ children, delay = 0, style = {} }) {
   return <div style={{ animation: `pageEnter 0.5s cubic-bezier(0.4,0,0.2,1) ${delay}s both`, ...style }}>{children}</div>;
@@ -46,7 +46,7 @@ export default function Service() {
         </FadeIn>
 
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 24 }}>
             {[...Array(6)].map((_, i) => <div key={i} className="shimmer" style={{ height: 220, borderRadius: 16, border: '1px solid var(--border)' }} />)}
           </div>
         ) : (
@@ -63,12 +63,28 @@ export default function Service() {
                   >
                     <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: `${color}10` }} />
 
-                    <div style={{ width: 52, height: 52, borderRadius: 14, background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 20 }}>
-                      {icon}
-                    </div>
+                    {svc.img ? (
+                      <div style={{ width: 60, height: 60, borderRadius: 14, overflow: 'hidden', border: `1px solid ${color}30`, marginBottom: 20 }}>
+                        <img src={resolveImg(svc.img)} alt={svc.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
+                      </div>
+                    ) : (
+                      <div style={{ width: 52, height: 52, borderRadius: 14, background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 20 }}>
+                        {icon}
+                      </div>
+                    )}
 
                     <div style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 600, color: 'var(--text)', marginBottom: 12 }}>{svc.title}</div>
                     <div style={{ fontSize: 13, color: 'var(--muted2)', lineHeight: 1.7 }}>{svc.description}</div>
+
+                    {Array.isArray(svc.images) && svc.images.length > 0 && (
+                      <div style={{ display: 'flex', gap: 6, marginTop: 14 }}>
+                        {svc.images.slice(0, 4).map((g, idx) => (
+                          <div key={idx} style={{ width: 32, height: 32, borderRadius: 6, overflow: 'hidden', border: '1px solid var(--border)' }}>
+                            <img src={resolveImg(g)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
                     <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--mono)', fontSize: 11, color, letterSpacing: '0.08em' }}>
                       <span>Learn more</span>
@@ -83,7 +99,7 @@ export default function Service() {
 
         {/* CTA banner */}
         <FadeIn delay={0.3}>
-          <div style={{ marginTop: 80, background: 'linear-gradient(135deg,var(--bg2),var(--bg3))', border: '1px solid var(--border)', borderRadius: 20, padding: '48px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 80, background: 'linear-gradient(135deg,var(--bg2),var(--bg3))', border: '1px solid var(--border)', borderRadius: 20, padding: 'clamp(24px,5vw,48px) clamp(20px,4vw,40px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
             <div>
               <h3 style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>Ready to start a project?</h3>
               <p style={{ fontSize: 14, color: 'var(--muted2)' }}>Let's discuss how I can help bring your ideas to life.</p>

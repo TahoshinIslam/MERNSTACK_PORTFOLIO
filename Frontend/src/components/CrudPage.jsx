@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
+import { resolveImg } from '../api';
+import FileDrop from './FileDrop';
 
-
-export default function CrudPage({ title, api, apiArgs = [], columns, fields, emptyMsg, imgField, canEdit = true }) {
+export default function CrudPage({
+  title, api, apiArgs = [],
+  columns, fields,
+  emptyMsg, imgField, canEdit = true,
+}) {
   const toast = useToast();
   const [rows,    setRows]    = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,13 +22,13 @@ export default function CrudPage({ title, api, apiArgs = [], columns, fields, em
       const r = await api.getAll(...apiArgs);
       const data = r.data?.data ?? r.data;
       setRows(Array.isArray(data) ? data : []);
-    } catch (error) { 
+    } catch (error) {
       toast(
-        error.response?.status === 401 
-          ? 'Session expired. Please login again.' 
-          : 'Failed to load data', 
+        error.response?.status === 401
+          ? 'Session expired. Please login again.'
+          : 'Failed to load data',
         'error'
-      ); 
+      );
     }
     finally { setLoading(false); }
   };
@@ -32,7 +37,7 @@ export default function CrudPage({ title, api, apiArgs = [], columns, fields, em
 
   const openAdd = () => {
     const blank = {};
-    fields.forEach(f => { blank[f.key] = ''; });
+    fields.forEach(f => { blank[f.key] = f.type === 'gallery' ? [] : ''; });
     setForm(blank);
     setErr('');
     setModal('add');
@@ -40,7 +45,13 @@ export default function CrudPage({ title, api, apiArgs = [], columns, fields, em
 
   const openEdit = (row) => {
     const filled = {};
-    fields.forEach(f => { filled[f.key] = row[f.key] ?? ''; });
+    fields.forEach(f => {
+      if (f.type === 'gallery') {
+        filled[f.key] = Array.isArray(row[f.key]) ? row[f.key] : [];
+      } else {
+        filled[f.key] = row[f.key] ?? '';
+      }
+    });
     setForm({ ...filled, _id: row._id });
     setErr('');
     setModal(row);
@@ -50,9 +61,10 @@ export default function CrudPage({ title, api, apiArgs = [], columns, fields, em
 
   const handleSave = async () => {
     setErr('');
-    // basic required check
     for (const f of fields) {
-      if (f.required && !form[f.key]) { setErr(`${f.label} is required.`); return; }
+      const v = form[f.key];
+      const empty = f.type === 'gallery' ? !v?.length : !v;
+      if (f.required && empty) { setErr(`${f.label} is required.`); return; }
     }
     setSaving(true);
     try {
@@ -76,13 +88,13 @@ export default function CrudPage({ title, api, apiArgs = [], columns, fields, em
       await api.remove(id);
       toast('Deleted', 'success');
       load();
-    } catch (error) { 
+    } catch (error) {
       toast(
-        error.response?.status === 401 
-          ? 'Session expired. Please login again.' 
-          : 'Delete failed', 
+        error.response?.status === 401
+          ? 'Session expired. Please login again.'
+          : 'Delete failed',
         'error'
-      ); 
+      );
     }
   };
 
@@ -124,7 +136,7 @@ export default function CrudPage({ title, api, apiArgs = [], columns, fields, em
                   {imgField && (
                     <td className="td-img">
                       {row[imgField]
-                        ? <img src={row[imgField].startsWith('http') ? row[imgField] : `/api/v1/get-file/${row[imgField]}`} alt="" className="row-img" onError={e => e.target.style.display='none'} />
+                        ? <img src={resolveImg(row[imgField])} alt="" className="row-img" onError={e => e.target.style.display='none'} />
                         : <div style={{ width: 36, height: 36, background: 'var(--bg3)', borderRadius: 6 }} />
                       }
                     </td>
@@ -168,9 +180,11 @@ export default function CrudPage({ title, api, apiArgs = [], columns, fields, em
               {err && <div className="error-banner">{err}</div>}
               <div className="form-grid">
                 {fields.map(f => (
-                  <div key={f.key} className={`form-group ${f.fullWidth ? 'full' : ''}`}
-                       style={f.fullWidth ? { gridColumn: '1/-1' } : {}}>
-                    <label>{f.label}{f.required ? ' *' : ''}</label>
+                  <div key={f.key} className={`form-group ${f.fullWidth || f.type === 'image' || f.type === 'gallery' ? 'full' : ''}`}
+                       style={(f.fullWidth || f.type === 'image' || f.type === 'gallery') ? { gridColumn: '1/-1' } : {}}>
+                    {f.type !== 'image' && f.type !== 'gallery' && (
+                      <label>{f.label}{f.required ? ' *' : ''}</label>
+                    )}
                     {f.type === 'textarea' ? (
                       <textarea
                         value={form[f.key] || ''}
@@ -185,6 +199,25 @@ export default function CrudPage({ title, api, apiArgs = [], columns, fields, em
                           <option key={o.value} value={o.value}>{o.label}</option>
                         ))}
                       </select>
+                    ) : f.type === 'image' ? (
+                      <FileDrop
+                        mode="single"
+                        label={`${f.label}${f.required ? ' *' : ''}`}
+                        hint={f.hint || 'Drag & drop, or click to upload'}
+                        value={form[f.key] || ''}
+                        onChange={(v) => set(f.key, v)}
+                        accept={f.accept || 'image/*'}
+                      />
+                    ) : f.type === 'gallery' ? (
+                      <FileDrop
+                        mode="multiple"
+                        label={`${f.label}${f.required ? ' *' : ''}`}
+                        hint={f.hint || 'Add additional images (drag & drop or click)'}
+                        value={form[f.key] || []}
+                        onChange={(v) => set(f.key, v)}
+                        accept={f.accept || 'image/*'}
+                        maxFiles={f.maxFiles || 10}
+                      />
                     ) : (
                       <input
                         type={f.type || 'text'}

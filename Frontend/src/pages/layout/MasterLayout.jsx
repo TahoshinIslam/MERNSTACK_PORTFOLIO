@@ -50,10 +50,10 @@ export default function MasterLayout({ children }) {
               borderRadius: 10,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <span style={{ fontFamily: 'var(--serif)', fontSize: 18, color: 'var(--gold)', fontWeight: 700 }}>P</span>
+              <span style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--gold)', fontWeight: 800 }}>DEV</span>
             </div>
             <span style={{ fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 700, color: 'var(--gold)' }}>
-              Portfolio
+              Tahoshin
             </span>
           </Link>
 

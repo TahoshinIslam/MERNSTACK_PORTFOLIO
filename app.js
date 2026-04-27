@@ -8,6 +8,7 @@ const hpp = require("hpp");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
+const path = require("path");
 const router = require("./backend/src/routes/api");
 const app = new express();
 
@@ -26,6 +27,16 @@ app.use(mongoSanitize());
 app.use(hpp());
 app.use(express.json({ limit: "10mb", extended: true }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
+// Serve uploaded files (multer-managed local storage)
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"), { maxAge: "7d" }),
+);
+app.use(
+  "/api/v1/get-file",
+  express.static(path.join(__dirname, "uploads"), { maxAge: "7d" }),
+);
 
 let option = {
   autoIndex: true,

@@ -4,12 +4,14 @@ const blogModel = require("../models/blogModel");
 
 exports.createBlog = async (req, res) => {
   try {
-    let { title, category, img, shortDescription, description } = req.body;
+    let { title, category, img, images, shortDescription, description } =
+      req.body;
 
     let data = await blogModel.create({
       title,
       category,
       img,
+      images: Array.isArray(images) ? images : [],
       shortDescription,
       description,
     });
@@ -113,12 +115,11 @@ exports.updateBlog = async (req, res) => {
   try {
     let { id } = req.params;
 
-    let { title, category, img, shortDescription, description } = req.body;
-    let data = await blogModel.findByIdAndUpdate(
-      id,
-      { title, category, img, shortDescription, description },
-      { new: true },
-    );
+    let { title, category, img, images, shortDescription, description } =
+      req.body;
+    let payload = { title, category, img, shortDescription, description };
+    if (Array.isArray(images)) payload.images = images;
+    let data = await blogModel.findByIdAndUpdate(id, payload, { new: true });
     res.status(201).json({
       success: true,
       message: " Blog Data UPDATED Successfully",

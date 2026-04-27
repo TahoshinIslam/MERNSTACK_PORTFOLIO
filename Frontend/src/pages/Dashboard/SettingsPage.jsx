@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { updateUser, uploadFile } from '../../api';
+import { useState, useEffect } from 'react';
+import { updateUser, getUser, resolveImg } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useTheme, FONTS } from '../../context/ThemeContext';
+import FileDrop from '../../components/FileDrop';
 
 function SectionCard({ title, subtitle, children }) {
   return (
@@ -19,57 +20,144 @@ function SectionCard({ title, subtitle, children }) {
 }
 
 export default function SettingsPage() {
-  const { user }                    = useAuth();
-  const toast                       = useToast();
+  const { user, updateUserCache } = useAuth();
+  const toast = useToast();
   const { mode, toggleMode, fontId, setFont } = useTheme();
 
-  const [password,     setPassword]     = useState('');
-  const [saving,       setSaving]       = useState(false);
-  const [uploading,    setUploading]    = useState(false);
-  const [fileResult,   setFileResult]   = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [profile, setProfile] = useState({
+    name: '', title: '', picture: '', bio: '',
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const [password, setPassword] = useState('');
+  const [savingPwd, setSavingPwd] = useState(false);
+
+  // Hydrate the form once we have the user
+  useEffect(() => {
+    if (!user) return;
+    setProfile({
+      name: user.name || '',
+      title: user.title || '',
+      picture: user.picture || '',
+      bio: user.bio || '',
+    });
+  }, [user?._id || user?.id]);
+
+  const setField = (k) => (v) => setProfile(p => ({ ...p, [k]: typeof v === 'string' ? v : v.target.value }));
+
+  const handleProfileSave = async (e) => {
+    e?.preventDefault?.();
+    setSavingProfile(true);
+    try {
+      const r = await updateUser(profile);
+      const updated = r.data?.user;
+      // Re-fetch the canonical user record so the cache is fresh
+      try {
+        const me = await getUser();
+        const u = me.data?.result?.[0] ?? updated ?? null;
+        if (u) updateUserCache({ ...user, ...u });
+      } catch {}
+      toast('Profile updated successfully', 'success');
+    } catch (ex) {
+      toast(ex.response?.data?.message || 'Update failed', 'error');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     if (!password) return;
-    setSaving(true);
+    setSavingPwd(true);
     try {
       await updateUser({ password });
-      toast('Password updated successfully!', 'success');
+      toast('Password updated successfully', 'success');
       setPassword('');
     } catch (ex) {
       toast(ex.response?.data?.message || 'Update failed', 'error');
-    } finally { setSaving(false); }
-  };
-
-  const handleFileUpload = async (e) => {
-    e.preventDefault();
-    if (!selectedFile) return;
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append('file', selectedFile);
-      const r = await uploadFile(fd);
-      const url = r.data?.url || r.data?.data?.url || r.data?.path || JSON.stringify(r.data);
-      setFileResult(url);
-      toast('File uploaded!', 'success');
-    } catch (ex) {
-      toast(ex.response?.data?.message || 'Upload failed', 'error');
-    } finally { setUploading(false); }
+    } finally {
+      setSavingPwd(false);
+    }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 820 }} className="page-animate">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 920 }} className="page-animate">
       <div className="section-head">
         <div>
           <div className="section-title">Settings</div>
-          <div className="section-count">Manage your account and appearance</div>
+          <div className="section-count">Manage your account, profile and appearance</div>
         </div>
       </div>
 
+      {/* ── Admin profile (NAME + PICTURE + TITLE + BIO) ─────────────── */}
+      <SectionCard title="Profile" subtitle="This shows on your public portfolio (Home & About)">
+        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 28, alignItems: 'start' }} className="settings-profile-grid">
+          {/* Avatar / picture */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+            <div style={{
+              width: 200, height: 200, borderRadius: '50%',
+              background: 'linear-gradient(135deg,var(--gold-dim),var(--bg3))',
+              border: '2px solid var(--gold)',
+              overflow: 'hidden',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'var(--serif)', fontSize: 64, color: 'var(--gold)', fontWeight: 700,
+            }}>
+              {profile.picture
+                ? <img src={resolveImg(profile.picture)} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
+                : (profile.name?.[0] || user?.email?.[0] || 'A').toUpperCase()
+              }
+            </div>
+            <FileDrop
+              mode="single"
+              value={profile.picture}
+              onChange={(v) => setProfile(p => ({ ...p, picture: v }))}
+              label="Profile Picture"
+              hint="Square images look best (≥ 400×400)"
+              accept="image/*"
+            />
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleProfileSave} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="form-group">
+              <label>Display Name</label>
+              <input
+                type="text"
+                value={profile.name}
+                onChange={setField('name')}
+                placeholder="e.g. Tahoshin Islam"
+              />
+            </div>
+            <div className="form-group">
+              <label>Professional Title</label>
+              <input
+                type="text"
+                value={profile.title}
+                onChange={setField('title')}
+                placeholder="e.g. Full-Stack Developer"
+              />
+            </div>
+            <div className="form-group">
+              <label>Short Bio</label>
+              <textarea
+                value={profile.bio}
+                onChange={setField('bio')}
+                placeholder="One or two sentences about yourself"
+                rows={4}
+              />
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+              Email: <span style={{ color: 'var(--text)', fontFamily: 'var(--mono)' }}>{user?.email}</span>
+            </div>
+            <button className="btn btn-primary" type="submit" disabled={savingProfile} style={{ alignSelf: 'flex-start' }}>
+              {savingProfile ? 'Saving…' : 'Save Profile'}
+            </button>
+          </form>
+        </div>
+      </SectionCard>
+
       {/* ── Appearance ─────────────────────────────────────────── */}
-      <SectionCard title="Appearance" subtitle="Controls how the dashboard looks for all viewers">
-        {/* Color Mode */}
+      <SectionCard title="Appearance" subtitle="Controls how the dashboard looks">
         <div>
           <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)', marginBottom: 12 }}>Color Mode</div>
           <div style={{ display: 'flex', gap: 12 }}>
@@ -96,18 +184,11 @@ export default function SettingsPage() {
                 }}>
                   {m === 'dark' ? 'Dark' : 'Light'}
                 </div>
-                {mode === m && (
-                  <div style={{
-                    width: 6, height: 6, borderRadius: '50%',
-                    background: 'var(--gold)',
-                  }} />
-                )}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Font */}
         <div>
           <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)', marginBottom: 12 }}>Interface Font</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -121,109 +202,38 @@ export default function SettingsPage() {
                 <span style={{
                   width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
                   background: fontId === font.id ? 'var(--gold)' : 'var(--border2)',
-                  border: fontId === font.id ? 'none' : '1px solid var(--border2)',
                 }} />
                 <span style={{ fontFamily: font.stack }}>{font.label}</span>
                 <span style={{ marginLeft: 'auto', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--muted)', opacity: 0.6 }}>Aa</span>
               </button>
             ))}
           </div>
-          <div style={{ marginTop: 12, padding: '12px 16px', background: 'var(--bg3)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Preview: </span>
-            <span style={{ fontSize: 14, color: 'var(--text)', fontFamily: 'var(--sans)' }}>
-              The quick brown fox jumps over the lazy dog.
-            </span>
-          </div>
         </div>
       </SectionCard>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-        {/* ── Profile ────────────────────────────────────────────── */}
-        <SectionCard title="Profile" subtitle="Your account credentials">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{
-              width: 52, height: 52,
-              background: 'var(--gold-dim)',
-              border: '1.5px solid var(--gold)',
-              borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'var(--serif)', fontSize: 22, color: 'var(--gold)', fontWeight: 700,
-              flexShrink: 0,
-            }}>
-              {user?.email?.[0]?.toUpperCase() || 'A'}
-            </div>
-            <div>
-              <div style={{ fontWeight: 500, color: 'var(--text)', fontSize: 14 }}>{user?.email}</div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', marginTop: 2, letterSpacing: '0.12em', textTransform: 'uppercase' }}>Administrator</div>
-            </div>
+      {/* ── Password ──────────────────────────────────────────── */}
+      <SectionCard title="Security" subtitle="Change your account password">
+        <form onSubmit={handlePasswordUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 420 }}>
+          <div className="form-group">
+            <label>New Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Enter new password"
+            />
           </div>
-
-          <form onSubmit={handlePasswordUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div className="form-group">
-              <label>New Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="Enter new password"
-              />
-            </div>
-            <button className="btn btn-primary" type="submit" disabled={saving || !password}>
-              {saving ? 'Updating…' : 'Update Password'}
-            </button>
-          </form>
-        </SectionCard>
-
-        {/* ── File Upload ─────────────────────────────────────────── */}
-        <SectionCard title="File Upload" subtitle="Upload images and assets">
-          <form onSubmit={handleFileUpload} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div
-              className="file-upload-area"
-              onClick={() => document.getElementById('file-input').click()}
-            >
-              <div style={{ fontSize: 28 }}>📎</div>
-              <p style={{ fontWeight: 500 }}>{selectedFile ? selectedFile.name : 'Click to select a file'}</p>
-              <p style={{ fontSize: 11, marginTop: 4 }}>Images, PDFs, documents</p>
-              <input
-                id="file-input"
-                type="file"
-                style={{ display: 'none' }}
-                onChange={e => setSelectedFile(e.target.files[0])}
-              />
-            </div>
-            {fileResult && (
-              <div style={{
-                background: 'rgba(82,168,126,0.08)', border: '1px solid rgba(82,168,126,0.25)',
-                borderRadius: 'var(--radius)', padding: '8px 12px',
-                fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--success)',
-                wordBreak: 'break-all',
-              }}>
-                ✓ {fileResult}
-              </div>
-            )}
-            <button className="btn btn-primary" type="submit" disabled={uploading || !selectedFile}>
-              {uploading ? 'Uploading…' : 'Upload File'}
-            </button>
-          </form>
-        </SectionCard>
-      </div>
-
-      {/* ── API Info ─────────────────────────────────────────────── */}
-      <SectionCard title="API Information" subtitle="Connection details for developers">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-          {[
-            ['Base URL',    '/api/v1'],
-            ['Auth',        'Cookie-based JWT'],
-            ['File Store',  '/api/v1/get-file/<filename>'],
-            ['Rate Limit',  '100 req / 15 min'],
-          ].map(([k, v]) => (
-            <div key={k} style={{ background: 'var(--bg3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>{k}</div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--gold)' }}>{v}</div>
-            </div>
-          ))}
-        </div>
+          <button className="btn btn-primary" type="submit" disabled={savingPwd || !password}>
+            {savingPwd ? 'Updating…' : 'Update Password'}
+          </button>
+        </form>
       </SectionCard>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .settings-profile-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }
