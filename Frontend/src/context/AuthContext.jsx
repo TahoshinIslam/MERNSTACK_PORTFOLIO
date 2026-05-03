@@ -17,7 +17,9 @@ export function AuthProvider({ children }) {
     if (saved) {
       try {
         setUser(JSON.parse(saved));
-      } catch {}
+      } catch (e) {
+        console.error("Failed to parse saved user:", e);
+      }
     }
   }, []);
 
@@ -30,9 +32,11 @@ export function AuthProvider({ children }) {
         if (u) {
           setUser(u);
           localStorage.setItem("user", JSON.stringify(u));
+          console.log("✅ Session verified, user set:", u.email);
         }
       } catch (e) {
         // Session invalid – clear local
+        console.warn("❌ Session verification failed:", e.message);
         setUser(null);
         localStorage.removeItem("user");
       } finally {
@@ -50,7 +54,14 @@ export function AuthProvider({ children }) {
       const r = res.data;
       const u = r?.user ?? r?.result?.[0] ?? r?.data ?? r;
       setUser(u);
-      if (u) localStorage.setItem("user", JSON.stringify(u));
+      if (u) {
+        localStorage.setItem("user", JSON.stringify(u));
+        console.log("✅ Login successful, user set:", u.email);
+      }
+    } catch (e) {
+      const msg = e.response?.data?.message || e.message;
+      setError(msg);
+      console.error("❌ Login failed:", msg);
     } finally {
       isLoggingRef.current = false;
     }
@@ -59,7 +70,10 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await apiLogout();
-    } catch (e) {}
+      console.log("✅ Logout successful");
+    } catch (e) {
+      console.error("❌ Logout error (non-blocking):", e.message);
+    }
     setUser(null);
     localStorage.removeItem("user");
     window.location.href = "/login";
