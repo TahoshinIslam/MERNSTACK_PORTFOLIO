@@ -8,13 +8,17 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Skip redirect loop on auth routes from /login page
+    // Skip redirect on upload routes or if not in admin area
     if (
       error.config?.url?.includes("login") ||
+      error.config?.url?.includes("file-upload") ||
+      error.config?.url?.includes("files-upload") ||
       !window.location.pathname.startsWith("/admin")
     ) {
       return Promise.reject(error);
     }
+    
+    // Only redirect to login on 401 for actual auth routes
     if (error.response?.status === 401) {
       localStorage.removeItem("user");
       window.location.href = "/login";
