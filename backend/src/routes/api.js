@@ -35,6 +35,7 @@ const uploadHandler = (req, res) => {
     res.status(200).json({
       success: true,
       url: req.file.path, // Cloudinary URL
+      filename: req.file.filename,
     });
   } catch (err) {
     res.status(500).json({
@@ -44,8 +45,7 @@ const uploadHandler = (req, res) => {
   }
 };
 
-router.post("/file-upload", middlewares, fileUploads.single("file"), uploadHandler);
-router.post("/files-upload", middlewares, fileUploads.array("files", 10), (req, res) => {
+const uploadMultipleHandler = (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
@@ -56,6 +56,7 @@ router.post("/files-upload", middlewares, fileUploads.array("files", 10), (req, 
     res.status(200).json({
       success: true,
       urls: req.files.map(f => f.path), // Array of Cloudinary URLs
+      filenames: req.files.map(f => f.filename),
     });
   } catch (err) {
     res.status(500).json({
@@ -63,7 +64,40 @@ router.post("/files-upload", middlewares, fileUploads.array("files", 10), (req, 
       message: err.message,
     });
   }
-});
+};
+
+// Middleware to handle multer errors
+const handleUploadError = (err, req, res, next) => {
+  if (err) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "File upload failed",
+    });
+  }
+  next();
+};
+
+router.post(
+  "/file-upload",
+  middlewares,
+  (req, res, next) => {
+    fileUploads.single("file")(req, res, (err) => {
+      handleUploadError(err, req, res, next);
+    });
+  },
+  uploadHandler
+);
+
+router.post(
+  "/files-upload",
+  middlewares,
+  (req, res, next) => {
+    fileUploads.array("files", 10)(req, res, (err) => {
+      handleUploadError(err, req, res, next);
+    });
+  },
+  uploadMultipleHandler
+);
 
 //! API FOR Experience
 router.post(
