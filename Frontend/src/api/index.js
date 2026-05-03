@@ -8,6 +8,13 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Log errors for debugging
+    console.error("API Error:", {
+      url: error.config?.url,
+      status: error.response?.status,
+      message: error.response?.data?.message || error.message,
+    });
+
     // Skip redirect on upload routes or if not in admin area
     if (
       error.config?.url?.includes("login") ||
@@ -17,9 +24,10 @@ api.interceptors.response.use(
     ) {
       return Promise.reject(error);
     }
-    
-    // Only redirect to login on 401 for actual auth routes
+
+    // Only redirect to login on 401 for actual auth routes (not uploads)
     if (error.response?.status === 401) {
+      console.warn("Token invalid or expired - redirecting to login");
       localStorage.removeItem("user");
       window.location.href = "/login";
     }
