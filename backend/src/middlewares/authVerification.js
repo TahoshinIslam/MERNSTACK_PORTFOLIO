@@ -13,12 +13,20 @@ module.exports = (req, res, next) => {
     token = req.cookies["token"];
   }
 
+  // Check if token exists
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: "No token provided. Please log in.",
+    });
+  }
+
   let decoded = decodeToken(token);
 
   if (decoded === null) {
     return res.status(401).json({
       success: false,
-      message: "Invalid token.",
+      message: "Invalid or expired token. Please log in again.",
     });
   } else {
     req.headers.email = decoded.email;
