@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api/v1",
+  baseURL: "https://mernstack-portfolio-backend-6h5a.onrender.com/api/v1",
   withCredentials: true,
 });
 
