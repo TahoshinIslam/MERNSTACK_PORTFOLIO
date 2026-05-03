@@ -1,12 +1,9 @@
-const dotenv = require("dotenv");
-dotenv.config({ path: "../.env" }); // Load root .env
+require("dotenv").config(); // ✅ Load env variables correctly
 
-const app = require("../app");
-const path = require("path");
+const app = require("../app"); // adjust if path differs
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📁 Uploads served at http://localhost:${PORT}/uploads`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
