@@ -1,6 +1,6 @@
-require("dotenv").config(); // ✅ Load env variables correctly
+require("dotenv").config();
 
-const app = require("../app"); // adjust if path differs
+const app = require("../app");
 
 const PORT = process.env.PORT || 5000;
 
