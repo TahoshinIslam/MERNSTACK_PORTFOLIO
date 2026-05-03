@@ -1,0 +1,30 @@
+const mongoose = require("mongoose");
+const DataSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+    },
+    img: {
+      type: String,
+      required: true,
+    },
+    images: {
+      type: [String],
+      default: [],
+    },
+    link: {
+      type: String,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    versionKey: false,
+    timestamps: true,
+  },
+);
+const portfolioModel = mongoose.model("portfolios", DataSchema);
+module.exports = portfolioModel;

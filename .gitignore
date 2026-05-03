@@ -1,0 +1,10 @@
+**node_modules
+package-lock.json
+**.DS_Store
+# package.json should NOT be ignored — Vercel needs it
+**.env
+.vercel
+.env*.local
+/uploads/
+Frontend/dist/
+**/*.log
