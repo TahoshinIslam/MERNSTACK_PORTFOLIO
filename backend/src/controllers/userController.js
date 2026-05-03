@@ -44,11 +44,12 @@ exports.login = async (req, res) => {
 
     if (isMatch) {
       let token = EncodeToken(user.email, user._id);
+      // Parse cookie expire time safely and set SameSite=None in production
       let option = {
-        maxAge: process.env.Cookie_Expire_Time || 86400000,
+        maxAge: parseInt(process.env.Cookie_Expire_Time, 10) || 86400000,
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // HTTPS only in production
-        sameSite: "lax",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         path: "/",
       };
 
@@ -114,10 +115,11 @@ exports.user = async (req, res) => {
 //! USER LOGOUT
 exports.logout = (req, res) => {
   try {
+    // Use the same cookie options when clearing so the cookie is removed correctly
     res.clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       path: "/",
     });
     res.status(200).json({
