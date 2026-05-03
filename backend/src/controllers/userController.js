@@ -47,6 +47,7 @@ exports.login = async (req, res) => {
       let option = {
         maxAge: process.env.Cookie_Expire_Time || 86400000,
         httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
         sameSite: "lax",
         path: "/",
       };
@@ -113,7 +114,12 @@ exports.user = async (req, res) => {
 //! USER LOGOUT
 exports.logout = (req, res) => {
   try {
-    res.clearCookie("token");
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
     res.status(200).json({
       success: true,
       message: "logout successful",
