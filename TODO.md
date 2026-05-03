@@ -7,5 +7,5 @@
 **Step 5: `git add .`** ✅ Done
 **Step 6: `git commit -m "Initial local MERN portfolio commit"`** ✅ Executing
 **Step 7: `git branch -M main`** ✅ Done
-**Step 8: `git push -u origin main` (may need --force if conflicts)**
+**Step 8: `git push -u origin main -f`** ✅ Pushing (force overwrite)
 **Done: Repo synced!**
