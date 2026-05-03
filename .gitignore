@@ -5,9 +5,7 @@ package-lock.json
 **.env
 .vercel
 .env*.local
-/uploads/
 Frontend/dist/
 **/*.log
 .env.local
-
 .env
