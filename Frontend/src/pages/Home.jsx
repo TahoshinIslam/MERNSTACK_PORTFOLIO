@@ -66,14 +66,12 @@ const STATIC_SKILLS = [
 function Skeleton({ width = '100%', height = 16, radius = 6, style = {} }) {
   return (
     <span
+      className="shimmer"
       style={{
         display: 'inline-block',
         width,
         height,
         borderRadius: radius,
-        background: 'linear-gradient(90deg, var(--bg2) 0%, var(--bg3) 50%, var(--bg2) 100%)',
-        backgroundSize: '200% 100%',
-        animation: 'skeletonShimmer 1.4s ease-in-out infinite',
         ...style,
       }}
     />
@@ -231,16 +229,24 @@ export default function Home() {
                 )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {[
-                    { Icon: CodeIcon,    text: 'React · Node.js · MongoDB', color: '#c9a84c' },
-                    { Icon: PaletteIcon, text: 'UI/UX · Figma · CSS',       color: '#a852a8' },
-                    { Icon: CloudIcon,   text: 'AWS · Docker · CI/CD',      color: '#5294a8' },
-                  ].map(({ Icon: Ic, text, color }) => (
-                    <div key={text} style={{ fontSize: 13, color: 'var(--muted2)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ color, display: 'inline-flex' }}><Ic size={15} /></span>
-                      {text}
-                    </div>
-                  ))}
+                  {profileLoading
+                    ? [0, 1, 2].map(i => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <Skeleton width={15} height={15} radius={4} />
+                          <Skeleton width={`${70 - i * 8}%`} height={13} />
+                        </div>
+                      ))
+                    : [
+                        { Icon: CodeIcon,    text: 'React · Node.js · MongoDB', color: '#c9a84c' },
+                        { Icon: PaletteIcon, text: 'UI/UX · Figma · CSS',       color: '#a852a8' },
+                        { Icon: CloudIcon,   text: 'AWS · Docker · CI/CD',      color: '#5294a8' },
+                      ].map(({ Icon: Ic, text, color }) => (
+                        <div key={text} style={{ fontSize: 13, color: 'var(--muted2)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <span style={{ color, display: 'inline-flex' }}><Ic size={15} /></span>
+                          {text}
+                        </div>
+                      ))
+                  }
                 </div>
               </div>
             </FadeIn>
@@ -342,7 +348,6 @@ export default function Home() {
 
       <style>{`
         @keyframes growWidth { from { width: 0 } }
-        @keyframes skeletonShimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
         @media (max-width: 768px) {
           .hero-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
           .stats-row { grid-template-columns: repeat(2,1fr) !important; }
