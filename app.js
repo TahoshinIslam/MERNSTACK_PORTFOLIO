@@ -41,7 +41,10 @@ mongoose
     serverSelectionTimeoutMS: 50000,
   })
   .then(() => console.log("Database connected successfully"))
-  .catch((err) => console.log("Database connection failed", err));
+  .catch((err) => {
+    console.error("Database connection failed", err);
+    process.exit(1);
+  });
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
