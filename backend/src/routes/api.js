@@ -24,13 +24,38 @@ router.get("/logout", middlewares, userController.logout);
 router.put("/update", middlewares, userController.update);
 
 //!API For File Upload
+const uploadHandler = (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      url: req.file.path, // Cloudinary URL
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
 
-// ✔ new
-exports.upload = (req, res) => {
+router.post("/file-upload", middlewares, fileUploads.single("file"), uploadHandler);
+router.post("/files-upload", middlewares, fileUploads.array("files", 10), (req, res) => {
   try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No files uploaded",
+      });
+    }
     res.status(200).json({
       success: true,
-      url: req.file.path, // Cloudinary URL
+      urls: req.files.map(f => f.path), // Array of Cloudinary URLs
     });
   } catch (err) {
     res.status(500).json({
@@ -38,21 +63,7 @@ exports.upload = (req, res) => {
       message: err.message,
     });
   }
-};
-// ✔ new
-exports.upload = (req, res) => {
-  try {
-    res.status(200).json({
-      success: true,
-      url: req.file.path, // Cloudinary URL
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
+});
 
 //! API FOR Experience
 router.post(
