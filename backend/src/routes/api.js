@@ -25,19 +25,34 @@ router.put("/update", middlewares, userController.update);
 
 //!API For File Upload
 
-router.post(
-  "/file-upload",
-  middlewares,
-  fileUploads.single("file"),
-  userController.upload,
-);
-
-router.post(
-  "/files-upload",
-  middlewares,
-  fileUploads.array("files", 12),
-  userController.uploadMany,
-);
+// ✔ new
+exports.upload = (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      url: req.file.path, // Cloudinary URL
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+// ✔ new
+exports.upload = (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      url: req.file.path, // Cloudinary URL
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
 
 //! API FOR Experience
 router.post(
