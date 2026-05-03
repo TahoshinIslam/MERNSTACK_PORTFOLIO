@@ -63,13 +63,34 @@ const STATIC_SKILLS = [
   { name: 'DevOps / Docker',      pct: 68 },
 ];
 
+function Skeleton({ width = '100%', height = 16, radius = 6, style = {} }) {
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        width,
+        height,
+        borderRadius: radius,
+        background: 'linear-gradient(90deg, var(--bg2) 0%, var(--bg3) 50%, var(--bg2) 100%)',
+        backgroundSize: '200% 100%',
+        animation: 'skeletonShimmer 1.4s ease-in-out infinite',
+        ...style,
+      }}
+    />
+  );
+}
+
 export default function Home() {
   const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [skills, setSkills] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
 
   useEffect(() => {
-    getProfile().then(r => setProfile(r.data?.data || null)).catch(() => {});
+    getProfile()
+      .then(r => setProfile(r.data?.data || null))
+      .catch(() => {})
+      .finally(() => setProfileLoading(false));
     advantageAPI.getAll().then(r => {
       const d = r.data?.data || [];
       setSkills(d.map(a => ({ name: a.title, pct: Number(a.percent) || 0, category: a.category })));
@@ -78,8 +99,9 @@ export default function Home() {
   }, []);
 
   const skillsToShow = skills.length ? skills : STATIC_SKILLS;
-  const ownerName = profile?.name || 'Portfolio Owner';
-  const ownerTitle = profile?.title || 'Full-Stack Developer';
+  const ownerName = profile?.name || '';
+  const ownerTitle = profile?.title || '';
+  const firstName = ownerName.split(' ')[0];
 
   const STATS = [
     { label: 'Skills',       value: skillsToShow.length, suffix: '+' },
@@ -131,17 +153,37 @@ export default function Home() {
 
               <FadeIn delay={0.1}>
                 <h1 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(40px, 6.2vw, 88px)', fontWeight: 700, lineHeight: 1.05, color: 'var(--text)', marginBottom: 28, letterSpacing: '-0.01em' }}>
-                  Hi, I'm{' '}
-                  <span style={{ color: 'var(--gold)' }}>{ownerName.split(' ')[0]}</span>
-                  <br />
-                  <span style={{ color: 'var(--muted2)' }}>{ownerTitle}</span>
+                  {profileLoading ? (
+                    <>
+                      <Skeleton width="60%" height="1em" radius={10} />
+                      <br />
+                      <Skeleton width="75%" height="1em" radius={10} style={{ marginTop: 12 }} />
+                    </>
+                  ) : (
+                    <>
+                      Hi, I'm{' '}
+                      <span style={{ color: 'var(--gold)' }}>{firstName}</span>
+                      <br />
+                      <span style={{ color: 'var(--muted2)' }}>{ownerTitle}</span>
+                    </>
+                  )}
                 </h1>
               </FadeIn>
 
               <FadeIn delay={0.2}>
-                <p style={{ fontSize: 'clamp(15px, 1.25vw, 19px)', color: 'var(--muted2)', lineHeight: 1.75, marginBottom: 40, maxWidth: 560 }}>
-                  {profile?.bio || `I craft modern, performant web experiences with clean code and thoughtful design. Specializing in full-stack MERN applications.`}
-                </p>
+                <div style={{ marginBottom: 40, maxWidth: 560 }}>
+                  {profileLoading ? (
+                    <>
+                      <Skeleton width="100%" height={14} style={{ marginBottom: 10 }} />
+                      <Skeleton width="95%" height={14} style={{ marginBottom: 10 }} />
+                      <Skeleton width="70%" height={14} />
+                    </>
+                  ) : (
+                    <p style={{ fontSize: 'clamp(15px, 1.25vw, 19px)', color: 'var(--muted2)', lineHeight: 1.75, margin: 0 }}>
+                      {profile?.bio || `I craft modern, performant web experiences with clean code and thoughtful design. Specializing in full-stack MERN applications.`}
+                    </p>
+                  )}
+                </div>
               </FadeIn>
 
               <FadeIn delay={0.3}>
@@ -166,16 +208,27 @@ export default function Home() {
                     fontFamily: 'var(--serif)', fontSize: 48, color: 'var(--gold)', fontWeight: 700,
                     overflow: 'hidden',
                   }}>
-                    {profile?.picture
-                      ? <img src={resolveImg(profile.picture)} alt={ownerName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
-                      : ownerName[0].toUpperCase()
+                    {profileLoading
+                      ? <Skeleton width="100%" height="100%" radius="50%" />
+                      : profile?.picture
+                        ? <img src={resolveImg(profile.picture)} alt={ownerName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
+                        : (ownerName[0] || '?').toUpperCase()
                     }
                   </div>
                   <div style={{ position: 'absolute', bottom: 6, left: 96, width: 22, height: 22, borderRadius: '50%', background: 'var(--success)', border: '3px solid var(--bg2)' }} />
                 </div>
 
-                <div style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>{ownerName}</div>
-                <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--gold)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 24 }}>{ownerTitle}</div>
+                {profileLoading ? (
+                  <>
+                    <Skeleton width="60%" height={22} style={{ marginBottom: 8 }} />
+                    <div style={{ marginBottom: 24 }}><Skeleton width="45%" height={11} /></div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>{ownerName}</div>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--gold)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 24 }}>{ownerTitle}</div>
+                  </>
+                )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {[
@@ -289,6 +342,7 @@ export default function Home() {
 
       <style>{`
         @keyframes growWidth { from { width: 0 } }
+        @keyframes skeletonShimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
         @media (max-width: 768px) {
           .hero-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
           .stats-row { grid-template-columns: repeat(2,1fr) !important; }
